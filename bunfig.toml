@@ -1,0 +1,17 @@
+[install]
+cache = true
+frozenLockfile = false
+production = false
+
+[install.scopes]
+"@nestjs" = { url = "https://registry.npmjs.org/" }
+
+[run]
+bun = "bun"
+node = "node"
+
+[test]
+preload = ["./test/setup.ts"]
+
+[install.lockfile]
+save = true
