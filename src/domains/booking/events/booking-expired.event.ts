@@ -1,5 +1,4 @@
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class BookingExpiredEvent extends DomainEvent {
   public readonly eventName: string = 'BookingExpired';
   public readonly occurredOn: Date;
@@ -9,7 +8,6 @@ export class BookingExpiredEvent extends DomainEvent {
   constructor(
     public readonly bookingId: string,
     public readonly userId: string,
-    public readonly resourceId: string,
     public readonly resourceItemId: string,
     public readonly startDate: Date,
     public readonly endDate: Date,

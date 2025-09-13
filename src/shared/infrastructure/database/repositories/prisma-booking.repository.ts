@@ -7,7 +7,6 @@ import { BookingStatus } from '../../../../domains/booking/value-objects/booking
 import { BookingPeriod } from '../../../../domains/booking/value-objects/booking-period.value-object';
 import { BookingPrice } from '../../../../domains/booking/value-objects/booking-price.value-object';
 import { BookingStatus as PrismaBookingStatus } from '@prisma/client';
-
 @Injectable()
 export class PrismaBookingRepository implements BookingRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}
@@ -16,7 +15,6 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     const data = {
       id: entity.id.value,
       userId: entity.userId.value,
-      resourceId: entity.resourceId.value,
       resourceItemId: entity.resourceItemId.value,
       status: entity.status.value as any,
       startDate: entity.period.startDate,
@@ -66,15 +64,6 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
   async findByUserId(userId: UuidValueObject): Promise<BookingEntity[]> {
     const bookings = await this.prisma.booking.findMany({
       where: { userId: userId.value },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return bookings.map(booking => this.toDomainEntity(booking));
-  }
-
-  async findByResourceId(resourceId: UuidValueObject): Promise<BookingEntity[]> {
-    const bookings = await this.prisma.booking.findMany({
-      where: { resourceId: resourceId.value },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -181,21 +170,52 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     endDate: Date,
     excludeBookingId?: UuidValueObject
   ): Promise<{ isAvailable: boolean; conflictingBookings: BookingEntity[]; availableSlots: Array<{ startDate: Date; endDate: Date; }> }> {
-    // Use raw SQL to leverage GIST index for efficient range queries
-    const query = `
-      SELECT b.* FROM bookings b
-      WHERE b.resource_item_id = $1
-        AND b.status IN ('PENDING', 'CONFIRMED', 'PAYMENT_PENDING')
-        AND b.period && tstzrange($2, $3, '[)')
-        ${excludeBookingId ? 'AND b.id != $4' : ''}
-      ORDER BY b.created_at DESC
-    `;
-    
-    const params = excludeBookingId 
-      ? [resourceItemId.value, startDate, endDate, excludeBookingId.value]
-      : [resourceItemId.value, startDate, endDate];
+    // Use Prisma ORM for availability check
+    const whereClause: any = {
+      resourceItemId: resourceItemId.value,
+      status: {
+        in: ['PENDING', 'CONFIRMED', 'PAYMENT_PENDING']
+      },
+      OR: [
+        // New booking starts during existing booking
+        {
+          AND: [
+            { startDate: { lte: startDate } },
+            { endDate: { gt: startDate } }
+          ]
+        },
+        // New booking ends during existing booking
+        {
+          AND: [
+            { startDate: { lt: endDate } },
+            { endDate: { gte: endDate } }
+          ]
+        },
+        // New booking completely contains existing booking
+        {
+          AND: [
+            { startDate: { gte: startDate } },
+            { endDate: { lte: endDate } }
+          ]
+        },
+        // Existing booking completely contains new booking
+        {
+          AND: [
+            { startDate: { lte: startDate } },
+            { endDate: { gte: endDate } }
+          ]
+        }
+      ]
+    };
 
-    const conflictingBookings = await this.prisma.$queryRawUnsafe(query, ...params) as any[];
+    if (excludeBookingId) {
+      whereClause.id = { not: excludeBookingId.value };
+    }
+
+    const conflictingBookings = await this.prisma.booking.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'desc' }
+    });
 
     return {
       isAvailable: conflictingBookings.length === 0,
@@ -278,22 +298,10 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     return bookings.map(booking => this.toDomainEntity(booking));
   }
 
-  async findByUserAndResource(userId: UuidValueObject, resourceId: UuidValueObject): Promise<BookingEntity[]> {
-    const bookings = await this.prisma.booking.findMany({
-      where: { 
-        userId: userId.value,
-        resourceId: resourceId.value
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return bookings.map(booking => this.toDomainEntity(booking));
-  }
-
-  async findByResourceAndDateRange(resourceId: UuidValueObject, startDate: Date, endDate: Date): Promise<BookingEntity[]> {
+  async findByResourceItemAndDateRange(resourceItemId: UuidValueObject, startDate: Date, endDate: Date): Promise<BookingEntity[]> {
     const bookings = await this.prisma.booking.findMany({
       where: {
-        resourceId: resourceId.value,
+        resourceItemId: resourceItemId.value,
         OR: [
           {
             startDate: { gte: startDate, lte: endDate },
@@ -340,31 +348,6 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     return bookings.map(booking => this.toDomainEntity(booking));
   }
 
-  async findByResourceItemAndDateRange(resourceItemId: UuidValueObject, startDate: Date, endDate: Date): Promise<BookingEntity[]> {
-    const bookings = await this.prisma.booking.findMany({
-      where: {
-        resourceItemId: resourceItemId.value,
-        OR: [
-          {
-            startDate: { gte: startDate, lte: endDate },
-          },
-          {
-            endDate: { gte: startDate, lte: endDate },
-          },
-          {
-            AND: [
-              { startDate: { lte: startDate } },
-              { endDate: { gte: endDate } },
-            ],
-          },
-        ],
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return bookings.map(booking => this.toDomainEntity(booking));
-  }
-
   async findByUserAndStatus(userId: UuidValueObject, status: string): Promise<BookingEntity[]> {
     const bookings = await this.prisma.booking.findMany({
       where: {
@@ -385,7 +368,6 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     const whereClause: any = {};
     
     if (criteria.userId) whereClause.userId = criteria.userId.value;
-    if (criteria.resourceId) whereClause.resourceId = criteria.resourceId.value;
     if (criteria.resourceItemId) whereClause.resourceItemId = criteria.resourceItemId.value;
     if (criteria.status) whereClause.status = criteria.status;
     if (criteria.startDate || criteria.endDate) {
@@ -437,19 +419,29 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     return bookings.map(booking => this.toDomainEntity(booking));
   }
 
-  async findBookingsByDateRangeAndResource(resourceId: UuidValueObject, startDate: Date, endDate: Date): Promise<BookingEntity[]> {
-    return await this.findByResourceAndDateRange(resourceId, startDate, endDate);
-  }
-
   async findBookingsByDateRangeAndResourceItem(resourceItemId: UuidValueObject, startDate: Date, endDate: Date): Promise<BookingEntity[]> {
     return await this.findByResourceItemAndDateRange(resourceItemId, startDate, endDate);
+  }
+
+  async findOverdueBookings(): Promise<BookingEntity[]> {
+    // Find bookings that are PENDING and created more than 5 minutes ago
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    
+    const bookings = await this.prisma.booking.findMany({
+      where: {
+        status: 'PENDING',
+        createdAt: { lt: fiveMinutesAgo }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return bookings.map(booking => this.toDomainEntity(booking));
   }
 
   private toDomainEntity(prismaBooking: any): BookingEntity {
     return BookingEntity.fromPersistence({
       id: UuidValueObject.fromString(prismaBooking.id),
       userId: UuidValueObject.fromString(prismaBooking.userId),
-      resourceId: UuidValueObject.fromString(prismaBooking.resourceId),
       resourceItemId: UuidValueObject.fromString(prismaBooking.resourceItemId),
       status: BookingStatus.fromPersistence(prismaBooking.status),
       period: BookingPeriod.create(prismaBooking.startDate, prismaBooking.endDate),

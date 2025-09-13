@@ -1,320 +1,304 @@
-# 🏨 Booking System with NestJS & CQRS
+# 🏨 Booking System
 
-سیستم رزرواسیون پیشرفته با استفاده از NestJS، CQRS، و Domain-Driven Design
+سیستم رزرواسیون پیشرفته با استفاده از NestJS، CQRS، Domain-Driven Design و Prisma
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue)](https://www.typescriptlang.org/)
-[![NestJS](https://img.shields.io/badge/NestJS-10.0.0-red)](https://nestjs.com/)
-[![CQRS](https://img.shields.io/badge/CQRS-Implemented-green)](https://martinfowler.com/bliki/CQRS.html)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.0-blue)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7.0-red)](https://redis.io/)
+## 📁 ساختار پروژه
 
-## 🚀 Quick Start
-
-```bash
-# Clone repository
-git clone https://github.com/emadansari96/Booking-System.git
-cd Booking-System
-
-# Install dependencies
-bun install
-
-# Setup environment
-cp .env.example .env
-
-# Start services
-docker-compose up -d
-
-# Run application
-bun run dev
+```
+booking-system/
+├── prisma/                     # Prisma ORM Configuration
+│   ├── migrations/             # Database migrations
+│   ├── seeds/                  # Database seeders
+│   └── schema.prisma          # Database schema
+├── src/
+│   ├── app.module.ts          # Root module
+│   ├── main.ts                # Application entry point
+│   ├── domains/               # Domain layer (DDD)
+│   │   ├── auth/              # Authentication domain
+│   │   │   ├── controllers/   # Auth controllers
+│   │   │   ├── services/      # Auth services
+│   │   │   └── dtos/          # Data transfer objects
+│   │   ├── user-management/   # User management domain
+│   │   │   ├── entities/      # Domain entities
+│   │   │   ├── commands/      # CQRS commands
+│   │   │   ├── queries/       # CQRS queries
+│   │   │   ├── events/        # Domain events
+│   │   │   ├── services/      # Domain services
+│   │   │   ├── controllers/   # User controllers
+│   │   │   └── dtos/          # Data transfer objects
+│   │   ├── resource-management/ # Resource management domain
+│   │   │   ├── entities/      # Resource & ResourceItem entities
+│   │   │   ├── commands/      # CQRS commands
+│   │   │   ├── queries/       # CQRS queries
+│   │   │   ├── controllers/   # Resource controllers
+│   │   │   └── services/      # Domain services
+│   │   ├── booking/           # Booking domain
+│   │   │   ├── entities/      # Booking entities
+│   │   │   ├── services/      # Booking services
+│   │   │   ├── controllers/   # Booking controllers
+│   │   │   └── value-objects/ # Value objects
+│   │   ├── payment/           # Payment & Invoice domain
+│   │   │   ├── entities/      # Payment & Invoice entities
+│   │   │   ├── services/      # Payment services
+│   │   │   ├── controllers/   # Payment controllers
+│   │   │   └── value-objects/ # Value objects
+│   │   ├── pricing/           # Commission & Pricing domain
+│   │   │   ├── entities/      # Commission entities
+│   │   │   ├── services/      # Pricing services
+│   │   │   └── controllers/   # Commission controllers
+│   │   ├── notification/      # Notification domain
+│   │   │   ├── entities/      # Notification entities
+│   │   │   ├── services/      # Notification services
+│   │   │   └── controllers/   # Notification controllers
+│   │   └── expiry/            # Expiry management
+│   │       └── services/      # Expiry cron jobs
+│   └── shared/                # Shared infrastructure
+│       ├── domain/            # Shared domain logic
+│       │   ├── base/          # Base classes
+│       │   └── interfaces/    # Domain interfaces
+│       ├── infrastructure/    # Infrastructure layer
+│       │   ├── database/      # Database repositories
+│       │   │   └── repositories/ # Prisma repositories
+│       │   ├── mongodb/       # MongoDB for audit logs
+│       │   ├── redis/         # Redis for caching & locks
+│       │   └── security/      # Security services
+│       ├── exceptions/        # Custom exceptions
+│       ├── filters/           # Global exception filters
+│       └── pipes/             # Custom validation pipes
+├── docker-compose.yml         # Docker services
+├── package.json               # Dependencies
+└── Booking-System-API.postman_collection.json # API documentation
 ```
 
-## ✨ Features
+## 🏗️ معماری
 
-### 🏗️ Architecture
-- **CQRS**: Command Query Responsibility Segregation
-- **DDD**: Domain-Driven Design
-- **Event-Driven**: Event-driven architecture
-- **Clean Architecture**: Layered architecture
-- **SOLID Principles**: Object-oriented design
-
-### 🔧 Technology Stack
-- **Backend**: NestJS, TypeScript
-- **Database**: PostgreSQL with GiST index
-- **Cache**: Redis
-- **ORM**: TypeORM
-- **Container**: Docker
-- **Package Manager**: Bun
-
-### 🛡️ Security
-- **Data Hashing**: Sensitive data protection
-- **JWT**: Authentication
-- **Role-based**: Authorization
-- **Input Validation**: DTO validation
-- **SQL Injection**: Prevention
-
-### 📊 Performance
-- **Redis Caching**: Fast data access
-- **Connection Pooling**: Database optimization
-- **GiST Index**: Overlap prevention
-- **Distributed Locking**: Concurrency control
-
-## 🏛️ Architecture
-
-### CQRS Flow
-```mermaid
-graph TD
-    A[Client] --> B[Controller]
-    B --> C{Request Type}
-    C -->|Command| D[CommandBus]
-    C -->|Query| E[QueryBus]
-    D --> F[Command Handler]
-    E --> G[Query Handler]
-    F --> H[Domain Service]
-    G --> H
-    H --> I[Repository]
-    I --> J[Database]
-    F --> K[EventBus]
-    K --> L[Event Handler]
-    L --> M[Side Effects]
-```
-
-### Domain Structure
-```
-src/domains/user-management/
-├── commands/           # Commands (Write)
-├── queries/            # Queries (Read)
-├── events/             # Events (Side Effects)
-├── cqrs/              # CQRS Buses
-├── controllers/        # Controllers
-├── services/           # Domain Services
-└── dtos/              # Data Transfer Objects
-```
-
-## 🔧 API Endpoints
-
-### Regular Endpoints
-- `POST /users` - Create user
-- `GET /users/:id` - Get user by ID
-- `PUT /users/:id` - Update user
-- `DELETE /users/:id` - Deactivate user
-
-### CQRS Endpoints
-- `POST /users-cqrs` - Create user (CQRS)
-- `GET /users-cqrs/:id` - Get user by ID (CQRS)
-- `PUT /users-cqrs/:id` - Update user (CQRS)
-- `DELETE /users-cqrs/:id` - Deactivate user (CQRS)
-
-### Documentation
-- **Swagger UI**: http://localhost:3000/api/docs
-
-## 🧪 Testing
-
-```bash
-# Unit tests
-bun run test
-
-# Integration tests
-bun run test:e2e
-
-# Test coverage
-bun run test:cov
-
-# Watch mode
-bun run test:watch
-```
-
-## 🐳 Docker
-
-```bash
-# Start all services
-docker-compose up -d
-
-# Stop all services
-docker-compose down
-
-# View logs
-docker-compose logs -f
-
-# Clean up
-docker-compose down -v
-```
-
-## 📚 Documentation
-
-- **[CQRS Guide](docs/CQRS-User-Management.md)**: CQRS implementation
-- **[Architecture](docs/Architecture.md)**: System architecture
-- **[Development](docs/Development-Guide.md)**: Development workflow
-- **[Project Summary](PROJECT-SUMMARY.md)**: Project overview
-- **[TODO](TODO.md)**: Task management
-
-## 🏗️ Development
-
-### Prerequisites
-- Node.js 18+
-- Bun 1.0+
-- Docker & Docker Compose
-- PostgreSQL 13+
-- Redis 6+
-
-### Commands
-```bash
-# Development
-bun run dev          # Start dev server
-bun run build        # Build app
-bun run start:prod   # Start production
-
-# Testing
-bun run test         # Run tests
-bun run test:e2e     # E2E tests
-bun run test:cov     # Coverage
-
-# Code Quality
-bun run lint         # Lint code
-bun run format       # Format code
-
-# Database
-bun run migration:run    # Run migrations
-bun run migration:revert # Revert migration
-```
-
-## 🎯 Design Patterns
-
-### CQRS Pattern
-- **Commands**: Write operations
-- **Queries**: Read operations
-- **Events**: Side effects
-- **Buses**: Routing and dispatching
-
-### Domain-Driven Design
+### Domain-Driven Design (DDD)
 - **Entities**: Business objects with identity
 - **Value Objects**: Immutable objects
-- **Aggregates**: Consistency boundaries
-- **Domain Events**: Business events
+- **Aggregate Roots**: Entity clusters
+- **Domain Services**: Business logic services
+- **Repositories**: Data access interfaces
 
-### Repository Pattern
-- **Abstraction**: Data access layer
-- **Implementation**: TypeORM repositories
-- **Interface**: Domain contracts
+### CQRS (Command Query Responsibility Segregation)
+- **Commands**: State-changing operations
+- **Queries**: Data retrieval operations
+- **Handlers**: Command/Query processing
+- **Events**: Domain events for side effects
 
-## 📊 Performance
+### Infrastructure
+- **Prisma**: Primary ORM for PostgreSQL
+- **MongoDB**: Audit logs storage
+- **Redis**: Caching and distributed locking
+- **PostgreSQL**: Main database with GIST indexes
 
-### Caching Strategy
-- **L1**: In-memory cache
-- **L2**: Redis cache
-- **L3**: Database
+## 🚀 راه‌اندازی
 
-### Database Optimization
-- **Indexes**: Performance indexes
-- **Connection Pooling**: Connection management
-- **Query Optimization**: Efficient queries
+### پیش‌نیازها
+- Node.js 18+
+- Docker & Docker Compose
+- PostgreSQL (through Docker)
+- Redis (through Docker)
+- MongoDB (through Docker)
 
-### Scalability
-- **Horizontal Scaling**: Stateless design
-- **Load Balancing**: Multiple instances
-- **Microservices**: Domain separation
+### مراحل نصب
 
-## 🔐 Security
-
-### Data Protection
-- **Hashing**: Sensitive data
-- **Encryption**: Data at rest
-- **Validation**: Input validation
-
-### Authentication
-- **JWT**: Token-based auth
-- **Roles**: Role-based access
-- **Permissions**: Fine-grained control
-
-## 🚀 Deployment
-
-### Production
+1. **Clone پروژه:**
 ```bash
-# Build application
-bun run build
-
-# Start production
-bun run start:prod
-
-# Docker production
-docker-compose -f docker-compose.prod.yml up -d
+git clone <repository-url>
+cd booking-system
 ```
 
-### Environment Variables
+2. **نصب dependencies:**
 ```bash
+npm install
+```
+
+3. **راه‌اندازی Docker services:**
+```bash
+npm run docker:up
+```
+
+4. **تنظیم متغیرهای محیطی:**
+```bash
+cp .env.example .env
+# Edit .env file with your configurations
+```
+
+5. **ریست دیتابیس و اجرای migrations:**
+```bash
+# Reset database (destructive!)
+npx prisma migrate reset --force
+
+# Apply migrations
+npx prisma migrate deploy
+```
+
+6. **Seed دیتابیس:**
+```bash
+npm run seed
+```
+
+7. **Build و اجرای پروژه:**
+```bash
+# Development mode
+npm run start:dev
+
+# Production build
+npm run build
+npm run start:prod
+```
+
+## 📊 دیتابیس
+
+### PostgreSQL Schema
+- **Users**: اطلاعات کاربران با password hash
+- **Resources**: منابع قابل رزرو (هتل، سالن، ...)
+- **ResourceItems**: آیتم‌های خاص هر منبع (اتاق، میز، ...)
+- **Bookings**: رزروهای انجام شده
+- **Invoices**: فاکتورهای مالی
+- **Payments**: پرداخت‌ها
+- **CommissionStrategies**: استراتژی‌های کمیسیون
+- **Notifications**: اعلانات سیستم
+
+### ویژگی‌های خاص
+- **GIST Index**: جلوگیری از overlap در بوکینگ‌ها
+- **Exclusion Constraint**: فقط روی PENDING و CONFIRMED bookings
+- **Expiry Logic**: انقضای خودکار invoices و bookings
+
+### Migration مهم
+
+#### GIST Index Migration
+این migration برای جلوگیری از overlap در bookings ضروری است:
+
+```bash
+# اجرای migration
+npx prisma migrate dev
+
+# یا برای production
+npx prisma migrate deploy
+
+# بررسی وضعیت migrations
+npx prisma migrate status
+```
+
+#### ایجاد GIST Migration جدید
+اگر نیاز به ایجاد migration جدید برای GIST index دارید:
+
+```bash
+# 1. ایجاد migration خالی
+npx prisma migrate dev --name add_gist_index_for_booking_overlap --create-only
+
+# 2. ویرایش migration file
+# فایل: prisma/migrations/[timestamp]_add_gist_index_for_booking_overlap/migration.sql
+# محتوا:
+```
+
+```sql
+-- Enable btree_gist extension for GIST indexes
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+-- Drop existing constraint if exists
+ALTER TABLE "bookings" DROP CONSTRAINT IF EXISTS "booking_no_overlap";
+
+-- Create GIST exclusion constraint to prevent overlapping bookings
+-- Only applies to PENDING and CONFIRMED bookings (excludes EXPIRED ones)
+ALTER TABLE "bookings" ADD CONSTRAINT "booking_no_overlap_active" EXCLUDE USING GIST (
+  "resourceItemId" WITH =,
+  tsrange("startDate", "endDate", '[)') WITH &&
+) WHERE ("status" IN ('PENDING', 'CONFIRMED'));
+```
+
+```bash
+# 3. اجرای migration
+npx prisma migrate dev
+```
+
+## 🔐 احراز هویت
+
+### User Credentials (Seeded)
+- **Email**: `admin@booking.com`
+- **Password**: `booking_password`
+- **Role**: `ADMIN`
+
+### JWT Authentication
+- **Endpoint**: `POST /auth/login`
+- **Token Expiry**: 7 days (configurable)
+- **Protected Routes**: تمام endpoints غیر از auth
+
+## 📡 API Documentation
+
+### Postman Collection
+- Import `Booking-System-API.postman_collection.json`
+- Set `baseUrl` variable to `http://localhost:3000`
+- Use `/auth/login` to get token
+- Set `authToken` variable for protected endpoints
+
+### Main Endpoints
+- **Auth**: `/auth/login`, `/auth/register`
+- **Users**: `/users-cqrs/profile`
+- **Resources**: `/resources`, `/resource-items`
+- **Bookings**: `/bookings`
+- **Invoices**: `/invoices`
+- **Payments**: `/payments`
+- **Pricing**: `/commission-strategies`
+
+## 🔄 Workflow
+
+### Booking Process
+1. **Create Booking**: ایجاد بوکینگ (status: PENDING)
+2. **Auto Invoice**: ایجاد خودکار invoice
+3. **Payment**: پرداخت invoice
+4. **Complete**: تکمیل بوکینگ (status: CONFIRMED)
+5. **Expiry**: انقضای خودکار پس از 5 دقیقه
+
+### Expiry Management
+- **Cron Jobs**: هر دقیقه چک می‌شود
+- **Invoice Expiry**: 5 دقیقه بعد از ایجاد
+- **Booking Expiry**: 5 دقیقه بعد از ایجاد
+- **Status Change**: PENDING → EXPIRED
+
+## 🛠️ Scripts
+
+```bash
+# Development
+npm run start:dev          # Development mode with watch
+npm run build             # Build for production
+npm run start:prod        # Production mode
+
 # Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=booking_user
-DB_PASSWORD=booking_password
-DB_DATABASE=booking_system
+npm run seed              # Seed database with sample data
+npx prisma studio         # Database GUI
+npx prisma migrate dev    # Create new migration
 
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
+# Docker
+npm run docker:up         # Start all services
+npm run docker:down       # Stop all services
+npm run docker:clean      # Clean volumes and containers
 
-# Application
-NODE_ENV=production
-PORT=3000
+# Testing
+npm run test              # Unit tests
+npm run test:e2e          # End-to-end tests
 ```
 
-## 🤝 Contributing
+## ⚠️ نکات مهم
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+1. **GIST Index**: حتماً migration مربوط به GIST index اجرا شود
+   - از دستور `npx prisma migrate dev` استفاده کنید
+   - Migration موجود: `20250913215848_add_gist_index_for_booking_overlap`
+2. **Password Security**: تمام passwords با bcrypt hash می‌شوند
+3. **Expiry Logic**: بوکینگ‌ها و فاکتورها خودکار منقضی می‌شوند
+4. **Error Handling**: Exception filters سراسری پیاده‌سازی شده
+5. **Audit Logs**: تمام عملیات در MongoDB ثبت می‌شود
+6. **Migration Management**: 
+   - برای ایجاد migration جدید از `--create-only` استفاده کنید
+   - سپس migration file را ویرایش کنید
+   - در نهایت با `npx prisma migrate dev` اجرا کنید
 
-### Commit Convention
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `style`: Code style
-- `refactor`: Code refactoring
-- `test`: Tests
-- `chore`: Maintenance
+## 🐳 Docker Services
 
-## 📝 License
+- **PostgreSQL**: Port 5432
+- **Redis**: Port 6379  
+- **MongoDB**: Port 27017
+- **Application**: Port 3000
 
-MIT License - see [LICENSE](LICENSE) file
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/emadansari96/Booking-System/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/emadansari96/Booking-System/discussions)
-- **Email**: support@booking-system.com
-
-## 🎉 Acknowledgments
-
-- **NestJS Team**: For the amazing framework
-- **TypeORM Team**: For the excellent ORM
-- **Redis Team**: For the powerful cache
-- **PostgreSQL Team**: For the robust database
-
-## 📈 Roadmap
-
-### Phase 1 ✅
-- [x] User Management Domain
-- [x] CQRS Implementation
-- [x] Basic Infrastructure
-
-### Phase 2 🚧
-- [ ] Booking Domain
-- [ ] Resource Management
-- [ ] Payment Integration
-
-### Phase 3 📋
-- [ ] Notification System
-- [ ] Audit Trail
-- [ ] Real-time Features
-
-### Phase 4 🔮
-- [ ] Advanced Features
-- [ ] Performance Optimization
-- [ ] Microservices
-
----
-
-**Made with ❤️ by [Emad Ansari](https://github.com/emadansari96)**
+تمام services از طریق `docker-compose.yml` مدیریت می‌شوند.

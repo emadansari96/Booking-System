@@ -1,5 +1,4 @@
 import { UserRole } from '../dtos/user-role.dto';
-
 export class UserCreatedEvent {
   constructor(
     public readonly userId: string,

@@ -1,7 +1,6 @@
 // src/shared/infrastructure/configuration/configuration.service.ts
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
 @Injectable()
 export class AppConfigurationService {
   constructor(private readonly configService: ConfigService) {}

@@ -3,7 +3,6 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { UuidValueObject } from '../../domain/base/value-objects/uuid.value-object';
 import { NotificationEntity } from '../../../domains/notification/entities/notification.entity';
-
 export interface QueueNotificationJob {
   notificationId: string;
   userId: string;
@@ -16,7 +15,6 @@ export interface QueueNotificationJob {
   priority: string;
   retryCount?: number;
 }
-
 @Injectable()
 export class QueueService {
   constructor(

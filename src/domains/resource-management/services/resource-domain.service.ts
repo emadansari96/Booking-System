@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ResourceRepositoryInterface } from '../interfaces/resource-repository.interface';
 import { ResourceName } from '../value-objects/resource-name.value-object';
-
+import { ResourceNotFoundException, ResourceItemNotFoundException, ResourceNotAvailableException, ResourceItemNotAvailableException, InvalidResourceCapacityException, InvalidResourcePriceException } from '../../../shared/exceptions/resource.exceptions';
 @Injectable()
 export class ResourceDomainService {
   constructor(

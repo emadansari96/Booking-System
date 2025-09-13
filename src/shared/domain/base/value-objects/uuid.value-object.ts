@@ -1,6 +1,5 @@
 import { ValueObjectBase } from './value-object.base';
 import { randomUUID } from 'crypto';
-
 export interface UuidValueObjectProps {
   value: string;
 }
@@ -11,7 +10,7 @@ export class UuidValueObject extends ValueObjectBase<UuidValueObjectProps> {
   }
 
   private static isValidUUID(uuid: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     return uuidRegex.test(uuid);
   }
 
@@ -23,7 +22,8 @@ export class UuidValueObject extends ValueObjectBase<UuidValueObjectProps> {
   }
 
   static generate(): UuidValueObject {
-    return new UuidValueObject({ value: randomUUID() });
+    const uuid = randomUUID();
+    return new UuidValueObject({ value: uuid });
   }
 
   get value(): string {

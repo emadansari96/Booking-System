@@ -4,7 +4,6 @@ import { CreateCommissionStrategyCommand } from '../create-commission-strategy.c
 import { CommissionStrategyRepositoryInterface } from '../../interfaces/commission-strategy-repository.interface';
 import { CommissionStrategyEntity } from '../../entities/commission-strategy.entity';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(CreateCommissionStrategyCommand)
 export class CreateCommissionStrategyHandler implements ICommandHandler<CreateCommissionStrategyCommand> {
   constructor(

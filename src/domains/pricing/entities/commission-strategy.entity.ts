@@ -7,7 +7,6 @@ import { CommissionStrategyCreatedEvent } from '../events/commission-strategy-cr
 import { CommissionStrategyUpdatedEvent } from '../events/commission-strategy-updated.event';
 import { CommissionStrategyActivatedEvent } from '../events/commission-strategy-activated.event';
 import { CommissionStrategyDeactivatedEvent } from '../events/commission-strategy-deactivated.event';
-
 export interface CommissionStrategyProps {
   id: UuidValueObject;
   name: CommissionName;

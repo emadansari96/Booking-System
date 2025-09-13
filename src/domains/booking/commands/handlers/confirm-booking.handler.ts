@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ConfirmBookingCommand } from '../confirm-booking.command';
 import { BookingService } from '../../services/booking.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(ConfirmBookingCommand)
 export class ConfirmBookingHandler implements ICommandHandler<ConfirmBookingCommand> {
   constructor(

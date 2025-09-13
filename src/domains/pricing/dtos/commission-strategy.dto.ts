@@ -1,5 +1,4 @@
 import { IsString, IsNumber, IsOptional, IsBoolean, IsArray, IsEnum, Min, Max } from 'class-validator';
-
 export enum CommissionTypeDto {
   PERCENTAGE = 'PERCENTAGE',
   FIXED_AMOUNT = 'FIXED_AMOUNT',
@@ -8,35 +7,28 @@ export enum CommissionTypeDto {
 export class CreateCommissionStrategyDto {
   @IsString()
   name: string;
-
-  @IsEnum(CommissionTypeDto)
+@IsEnum(CommissionTypeDto)
   type: CommissionTypeDto;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   @Max(100)
   value: number;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   priority?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   applicableResourceTypes?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   minBookingDuration?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   maxBookingDuration?: number;
@@ -46,27 +38,22 @@ export class UpdateCommissionStrategyDto {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   priority?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   applicableResourceTypes?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   minBookingDuration?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   maxBookingDuration?: number;
@@ -75,8 +62,7 @@ export class UpdateCommissionStrategyDto {
 export class UpdateCommissionValueDto {
   @IsEnum(CommissionTypeDto)
   type: CommissionTypeDto;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   @Max(100)
   value: number;

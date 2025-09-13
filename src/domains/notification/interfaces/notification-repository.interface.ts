@@ -1,7 +1,6 @@
 import { RepositoryInterface } from '../../../shared/domain/interfaces/repository.interface';
 import { NotificationEntity } from '../entities/notification.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface NotificationSearchCriteria {
   userId?: UuidValueObject;
   type?: string;

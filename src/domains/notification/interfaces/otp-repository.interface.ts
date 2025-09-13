@@ -1,7 +1,6 @@
 import { RepositoryInterface } from '../../../shared/domain/interfaces/repository.interface';
 import { OtpEntity } from '../entities/otp.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface OtpSearchCriteria {
   userId?: UuidValueObject;
   email?: string;

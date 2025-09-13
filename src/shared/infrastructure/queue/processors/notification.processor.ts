@@ -3,7 +3,6 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { NotificationService } from '../../../../domains/notification/services/notification.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface NotificationJobData {
   notificationId: string;
   userId: string;
@@ -16,7 +15,6 @@ export interface NotificationJobData {
   priority: string;
   retryCount?: number;
 }
-
 @Processor('notifications')
 export class NotificationProcessor {
   private readonly logger = new Logger(NotificationProcessor.name);
@@ -24,8 +22,7 @@ export class NotificationProcessor {
   constructor(
     private readonly notificationService: NotificationService,
   ) {}
-
-  @Process('send-notification')
+@Process('send-notification')
   async handleSendNotification(job: Job<NotificationJobData>): Promise<void> {
     const { notificationId, ...jobData } = job.data;
     
@@ -47,8 +44,7 @@ export class NotificationProcessor {
       throw error;
     }
   }
-
-  @Process('process-pending')
+@Process('process-pending')
   async handleProcessPending(job: Job): Promise<void> {
     this.logger.log('Processing pending notifications');
 
@@ -63,8 +59,7 @@ export class NotificationProcessor {
       throw error;
     }
   }
-
-  @Process('cleanup-old')
+@Process('cleanup-old')
   async handleCleanupOld(job: Job<{ daysOld: number }>): Promise<void> {
     const { daysOld } = job.data;
     

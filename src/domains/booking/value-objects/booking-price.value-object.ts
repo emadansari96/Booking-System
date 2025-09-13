@@ -1,5 +1,4 @@
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export interface BookingPriceProps {
   basePrice: number;
   commissionAmount: number;
@@ -25,11 +24,8 @@ export class BookingPrice extends ValueObjectBase<BookingPriceProps> {
       throw new Error('Currency must be a valid 3-letter code');
     }
 
-    // Validate that total price equals base price + commission
-    const expectedTotal = basePrice + commissionAmount;
-    if (Math.abs(totalPrice - expectedTotal) > 0.01) { // Allow for small floating point differences
-      throw new Error('Total price must equal base price plus commission amount');
-    }
+    // Validate that total price equals base price + commission (only if not explicitly provided)
+    // This validation is now handled in the create method
 
     super({ basePrice, commissionAmount, totalPrice, currency });
   }
@@ -50,9 +46,18 @@ export class BookingPrice extends ValueObjectBase<BookingPriceProps> {
     return this.props.currency;
   }
 
-  public static create(basePrice: number, commissionAmount: number, currency: string): BookingPrice {
-    const totalPrice = basePrice + commissionAmount;
-    return new BookingPrice(basePrice, commissionAmount, totalPrice, currency);
+  public static create(basePrice: number, commissionAmount: number, currency: string, totalPrice?: number): BookingPrice {
+    const calculatedTotalPrice = totalPrice || (basePrice + commissionAmount);
+    
+    // If totalPrice is provided, validate it matches basePrice + commissionAmount
+    if (totalPrice !== undefined) {
+      const expectedTotal = basePrice + commissionAmount;
+      if (Math.abs(totalPrice - expectedTotal) > 0.01) {
+        throw new Error(`Total price must equal base price plus commission amount. Expected: ${expectedTotal}, Got: ${totalPrice}`);
+      }
+    }
+    
+    return new BookingPrice(basePrice, commissionAmount, calculatedTotalPrice, currency);
   }
 
   public static fromPersistence(basePrice: number, commissionAmount: number, totalPrice: number, currency: string): BookingPrice {

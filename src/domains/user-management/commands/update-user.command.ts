@@ -1,26 +1,20 @@
 import { IsEmail, IsString, IsOptional, IsPhoneNumber } from 'class-validator';
-
 export class UpdateUserCommand {
   @IsString()
   id: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEmail()
   email?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   firstName?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   lastName?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsPhoneNumber()
   phone?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   avatarUrl?: string;
 

@@ -10,7 +10,6 @@ import { ResourceCapacity } from '../../../../domains/resource-management/value-
 import { ResourcePrice } from '../../../../domains/resource-management/value-objects/resource-price.value-object';
 import { ResourceStatus } from '../../../../domains/resource-management/value-objects/resource-status.value-object';
 import { ResourceType } from '../../../../domains/resource-management/value-objects/resource-type.value-object';
-
 @Injectable()
 export class PrismaResourceRepository implements ResourceRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}
@@ -21,8 +20,8 @@ export class PrismaResourceRepository implements ResourceRepositoryInterface {
       name: entity.name.value,
       description: entity.description?.value,
       capacity: entity.capacity.value,
-      price: entity.price.value,
-      currency: entity.price.currency,
+      price: entity.price?.value || 0,
+      currency: entity.price?.currency || 'USD',
       status: entity.status.value as PrismaResourceStatus,
       type: entity.type.value as PrismaResourceType,
       location: entity.location,
@@ -89,16 +88,16 @@ export class PrismaResourceRepository implements ResourceRepositoryInterface {
     if (criteria.isActive !== undefined) {
       where.isActive = criteria.isActive;
     }
-    if (criteria.minCapacity !== undefined) {
+    if (criteria.minCapacity !== undefined && !isNaN(criteria.minCapacity)) {
       where.capacity = { gte: criteria.minCapacity };
     }
-    if (criteria.maxCapacity !== undefined) {
+    if (criteria.maxCapacity !== undefined && !isNaN(criteria.maxCapacity)) {
       where.capacity = { ...where.capacity, lte: criteria.maxCapacity };
     }
-    if (criteria.minPrice !== undefined) {
+    if (criteria.minPrice !== undefined && !isNaN(criteria.minPrice)) {
       where.price = { gte: criteria.minPrice };
     }
-    if (criteria.maxPrice !== undefined) {
+    if (criteria.maxPrice !== undefined && !isNaN(criteria.maxPrice)) {
       where.price = { ...where.price, lte: criteria.maxPrice };
     }
     if (criteria.location) {

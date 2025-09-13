@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateNotificationCommand } from '../create-notification.command';
 import { NotificationService } from '../../services/notification.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(CreateNotificationCommand)
 export class CreateNotificationHandler implements ICommandHandler<CreateNotificationCommand> {
   constructor(

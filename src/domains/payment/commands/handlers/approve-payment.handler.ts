@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApprovePaymentCommand } from '../approve-payment.command';
 import { PaymentService } from '../../services/payment.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(ApprovePaymentCommand)
 export class ApprovePaymentHandler implements ICommandHandler<ApprovePaymentCommand> {
   constructor(
@@ -15,16 +14,10 @@ export class ApprovePaymentHandler implements ICommandHandler<ApprovePaymentComm
       UuidValueObject.fromString(command.approvedBy)
     );
 
-    if (!result.success) {
-      throw new Error(result.message);
+    if (result.success) {
+      return result;
+    } else {
+      throw new Error(result.message || 'Failed to approve payment');
     }
-
-    return {
-      paymentId: result.payment.id.value,
-      status: result.payment.status.value,
-      approvedBy: result.payment.approvedBy?.value,
-      approvedAt: result.payment.approvedAt,
-      message: result.message,
-    };
   }
 }

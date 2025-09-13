@@ -3,7 +3,7 @@ import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.
 import { OtpEntity } from '../entities/otp.entity';
 import { OtpRepositoryInterface } from '../interfaces/otp-repository.interface';
 import { EmailService } from '../../../shared/infrastructure/email/email.service';
-
+import { OTPNotFoundException, OTPExpiredException, OTPAlreadyUsedException, InvalidOTPException } from '../../../shared/exceptions/notification.exceptions';
 export interface CreateOtpRequest {
   userId: UuidValueObject;
   email: string;
@@ -27,7 +27,6 @@ export interface OtpResult {
   remainingAttempts?: number;
   timeUntilExpiry?: number;
 }
-
 @Injectable()
 export class OtpService {
   constructor(

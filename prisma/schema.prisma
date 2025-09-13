@@ -1,8 +1,6 @@
-// Booking System Prisma Schema
-// Supports GIST indexes for range queries
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,52 +8,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User Management
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  firstName   String
-  lastName    String
-  phone       String   @unique
-  role        UserRole @default(CUSTOMER)
-  isActive    Boolean  @default(true)
-  avatarUrl   String?
-  lastLoginAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  bookings Booking[]
-  payments  Payment[]
-  invoices  Invoice[]
+  id            String         @id @default(uuid())
+  email         String         @unique
+  firstName     String
+  lastName      String
+  phone         String         @unique
+  password      String
+  role          UserRole       @default(CUSTOMER)
+  isActive      Boolean        @default(true)
+  avatarUrl     String?
+  lastLoginAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookings      Booking[]
+  invoices      Invoice[]
   notifications Notification[]
-  otps Otp[]
+  otps          Otp[]
+  payments      Payment[]
 
   @@map("users")
 }
 
-// Resource Management
 model Resource {
-  id          String        @id @default(uuid())
-  name        String
-  description String?
-  capacity    Int
-  price       Decimal       @db.Decimal(10, 2)
-  currency    String        @default("USD")
-  status      ResourceStatus @default(AVAILABLE)
-  type        ResourceType
-  location    String?
-  amenities   Json?
-  images      Json?
-  isActive    Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Relations
+  id            String         @id @default(uuid())
+  name          String
+  description   String?
+  capacity      Int
+  price         Decimal        @db.Decimal(10, 2)
+  currency      String         @default("USD")
+  status        ResourceStatus @default(AVAILABLE)
+  type          ResourceType
+  location      String?
+  amenities     Json?
+  images        Json?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   resourceItems ResourceItem[]
-  bookings Booking[]
 
-  // Indexes
   @@index([status, isActive])
   @@index([type, isActive])
   @@index([status, type, isActive])
@@ -63,27 +54,24 @@ model Resource {
 }
 
 model ResourceItem {
-  id          String            @id @default(uuid())
+  id          String             @id @default(uuid())
   resourceId  String
   name        String
   status      ResourceItemStatus @default(AVAILABLE)
   type        ResourceItemType
   capacity    Int
-  price       Decimal           @db.Decimal(10, 2)
-  currency    String            @default("USD")
+  price       Decimal            @db.Decimal(10, 2)
+  currency    String             @default("USD")
   description String?
   location    String?
   amenities   Json?
   images      Json?
-  isActive    Boolean           @default(true)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  bookings    Booking[]
+  resource    Resource           @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
-  // Relations
-  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
-  bookings Booking[]
-
-  // Indexes for availability queries
   @@index([resourceId, status, isActive])
   @@index([resourceId, type, isActive])
   @@index([status, isActive])
@@ -91,37 +79,31 @@ model ResourceItem {
   @@map("resource_items")
 }
 
-// Booking Management
 model Booking {
-  id                String        @id @default(uuid())
-  userId            String
-  resourceId        String
-  resourceItemId    String
-  status            BookingStatus @default(PENDING)
-  startDate         DateTime
-  endDate           DateTime
-  period            Unsupported("tstzrange")? // Generated column for range operations
-  basePrice         Decimal       @db.Decimal(10, 2)
-  commissionAmount  Decimal       @db.Decimal(10, 2)
-  totalPrice        Decimal       @db.Decimal(10, 2)
-  currency          String        @default("USD")
-  notes             String?
-  paymentDeadline   DateTime?
-  confirmedAt       DateTime?
-  cancelledAt       DateTime?
-  completedAt       DateTime?
-  expiredAt         DateTime?
-  paymentFailedAt   DateTime?
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id               String                    @id @default(uuid())
+  userId           String
+  resourceItemId   String
+  status           BookingStatus             @default(PENDING)
+  startDate        DateTime
+  endDate          DateTime
+  period           Unsupported("tstzrange")?
+  basePrice        Decimal                   @db.Decimal(10, 2)
+  commissionAmount Decimal                   @db.Decimal(10, 2)
+  totalPrice       Decimal                   @db.Decimal(10, 2)
+  currency         String                    @default("USD")
+  notes            String?
+  paymentDeadline  DateTime?
+  confirmedAt      DateTime?
+  cancelledAt      DateTime?
+  completedAt      DateTime?
+  expiredAt        DateTime?
+  paymentFailedAt  DateTime?
+  metadata         Json?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  resourceItem     ResourceItem              @relation(fields: [resourceItemId], references: [id])
+  user             User                      @relation(fields: [userId], references: [id])
 
-  // Relations
-  user         User          @relation(fields: [userId], references: [id])
-  resource     Resource      @relation(fields: [resourceId], references: [id])
-  resourceItem ResourceItem  @relation(fields: [resourceItemId], references: [id])
-
-  // Index for period range queries (exclusive end date)
   @@index([resourceItemId, startDate, endDate])
   @@index([userId, status])
   @@index([status, startDate])
@@ -130,7 +112,160 @@ model Booking {
   @@map("bookings")
 }
 
-// Enums
+model CommissionStrategy {
+  id                      String         @id @default(uuid())
+  name                    String         @unique
+  type                    CommissionType
+  value                   Decimal        @db.Decimal(10, 2)
+  description             String?
+  isActive                Boolean        @default(true)
+  priority                Int            @default(1)
+  applicableResourceTypes Json?
+  minBookingDuration      Int?
+  maxBookingDuration      Int?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+
+  @@index([isActive, priority])
+  @@index([type, isActive])
+  @@index([priority])
+  @@map("commission_strategies")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  userId        String
+  invoiceId     String
+  method        PaymentMethod
+  status        PaymentStatus
+  amount        Decimal       @db.Decimal(10, 2)
+  currency      Currency
+  description   String?
+  reference     String?
+  metadata      Json?
+  approvedBy    String?
+  approvedAt    DateTime?
+  completedAt   DateTime?
+  failedAt      DateTime?
+  cancelledAt   DateTime?
+  refundedAt    DateTime?
+  failureReason String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  invoice       Invoice       @relation(fields: [invoiceId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
+
+  @@index([userId, status])
+  @@index([invoiceId])
+  @@index([status, method])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  invoiceNumber  String        @unique
+  userId         String
+  status         InvoiceStatus
+  subtotal       Decimal       @db.Decimal(10, 2)
+  taxAmount      Decimal       @db.Decimal(10, 2)
+  discountAmount Decimal       @db.Decimal(10, 2)
+  totalAmount    Decimal       @db.Decimal(10, 2)
+  currency       Currency
+  dueDate        DateTime
+  paidAt         DateTime?
+  cancelledAt    DateTime?
+  refundedAt     DateTime?
+  notes          String?
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  items          InvoiceItem[]
+  user           User          @relation(fields: [userId], references: [id])
+  payments       Payment[]
+
+  @@index([userId, status])
+  @@index([invoiceNumber])
+  @@index([status, dueDate])
+  @@index([createdAt])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id             String   @id @default(uuid())
+  invoiceId      String
+  resourceId     String
+  resourceItemId String?
+  description    String
+  quantity       Int
+  unitPrice      Decimal  @db.Decimal(10, 2)
+  totalPrice     Decimal  @db.Decimal(10, 2)
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+  @@index([resourceId])
+  @@index([resourceItemId])
+  @@map("invoice_items")
+}
+
+model Notification {
+  id            String               @id @default(uuid())
+  userId        String
+  type          NotificationType
+  status        NotificationStatus   @default(PENDING)
+  priority      NotificationPriority @default(NORMAL)
+  title         String
+  message       String
+  email         String?
+  phoneNumber   String?
+  metadata      Json?
+  scheduledAt   DateTime?
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  failedAt      DateTime?
+  cancelledAt   DateTime?
+  failureReason String?
+  retryCount    Int                  @default(0)
+  maxRetries    Int                  @default(3)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  user          User                 @relation(fields: [userId], references: [id])
+
+  @@index([userId, status])
+  @@index([type, status])
+  @@index([status, priority])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model Otp {
+  id          String    @id @default(uuid())
+  userId      String
+  email       String
+  code        String
+  type        OtpType
+  status      OtpStatus @default(PENDING)
+  expiresAt   DateTime
+  verifiedAt  DateTime?
+  usedAt      DateTime?
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, type, status])
+  @@index([email, type, status])
+  @@index([status, expiresAt])
+  @@index([createdAt])
+  @@map("otps")
+}
+
 enum UserRole {
   ADMIN
   MANAGER
@@ -145,12 +280,14 @@ enum ResourceStatus {
 }
 
 enum ResourceType {
-  HOTEL
-  RESTAURANT
-  CONFERENCE_HALL
+  ROOM
+  HALL
   EQUIPMENT
   SERVICE
   VENUE
+  HOTEL
+  RESTAURANT
+  CONFERENCE_HALL
 }
 
 enum ResourceItemStatus {
@@ -183,120 +320,9 @@ enum BookingStatus {
   PAYMENT_FAILED
 }
 
-// Commission Strategy Management
-model CommissionStrategy {
-  id                      String   @id @default(uuid())
-  name                    String   @unique
-  type                    CommissionType
-  value                   Decimal  @db.Decimal(10, 2)
-  description             String?
-  isActive                Boolean  @default(true)
-  priority                Int      @default(1)
-  applicableResourceTypes Json?
-  minBookingDuration      Int?
-  maxBookingDuration      Int?
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
-
-  // Indexes
-  @@index([isActive, priority])
-  @@index([type, isActive])
-  @@index([priority])
-  @@map("commission_strategies")
-}
-
 enum CommissionType {
   PERCENTAGE
   FIXED_AMOUNT
-}
-
-// Payment Management
-model Payment {
-  id            String        @id @default(uuid())
-  userId        String
-  invoiceId     String
-  method        PaymentMethod
-  status        PaymentStatus
-  amount        Decimal       @db.Decimal(10, 2)
-  currency      Currency
-  description   String?
-  reference     String?
-  metadata      Json?
-  approvedBy    String?
-  approvedAt    DateTime?
-  completedAt   DateTime?
-  failedAt      DateTime?
-  cancelledAt   DateTime?
-  refundedAt    DateTime?
-  failureReason String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  // Relations
-  user    User    @relation(fields: [userId], references: [id])
-  invoice Invoice @relation(fields: [invoiceId], references: [id])
-
-  // Indexes
-  @@index([userId, status])
-  @@index([invoiceId])
-  @@index([status, method])
-  @@index([createdAt])
-  @@map("payments")
-}
-
-model Invoice {
-  id             String        @id @default(uuid())
-  invoiceNumber  String        @unique
-  userId         String
-  status         InvoiceStatus
-  subtotal       Decimal       @db.Decimal(10, 2)
-  taxAmount      Decimal       @db.Decimal(10, 2)
-  discountAmount Decimal       @db.Decimal(10, 2)
-  totalAmount    Decimal       @db.Decimal(10, 2)
-  currency       Currency
-  dueDate        DateTime
-  paidAt         DateTime?
-  cancelledAt    DateTime?
-  refundedAt     DateTime?
-  notes          String?
-  metadata       Json?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  // Relations
-  user     User           @relation(fields: [userId], references: [id])
-  payments Payment[]
-  items    InvoiceItem[]
-
-  // Indexes
-  @@index([userId, status])
-  @@index([invoiceNumber])
-  @@index([status, dueDate])
-  @@index([createdAt])
-  @@map("invoices")
-}
-
-model InvoiceItem {
-  id             String   @id @default(uuid())
-  invoiceId      String
-  resourceId     String
-  resourceItemId String?
-  description    String
-  quantity       Int
-  unitPrice      Decimal  @db.Decimal(10, 2)
-  totalPrice     Decimal  @db.Decimal(10, 2)
-  metadata       Json?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Relations
-  invoice Invoice @relation(fields: [invoiceId], references: [id])
-
-  // Indexes
-  @@index([invoiceId])
-  @@index([resourceId])
-  @@index([resourceItemId])
-  @@map("invoice_items")
 }
 
 enum PaymentMethod {
@@ -308,6 +334,7 @@ enum PaymentMethod {
 
 enum PaymentStatus {
   PENDING
+  NEED_TO_PAY
   APPROVED
   COMPLETED
   FAILED
@@ -332,72 +359,12 @@ enum Currency {
   AED
 }
 
-// Notification Management
-model Notification {
-  id            String             @id @default(uuid())
-  userId        String
-  type          NotificationType
-  status        NotificationStatus @default(PENDING)
-  priority      NotificationPriority @default(NORMAL)
-  title         String
-  message       String
-  email         String?
-  phoneNumber   String?
-  metadata      Json?
-  scheduledAt   DateTime?
-  sentAt        DateTime?
-  deliveredAt  DateTime?
-  failedAt     DateTime?
-  cancelledAt  DateTime?
-  failureReason String?
-  retryCount   Int                @default(0)
-  maxRetries   Int                @default(3)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  // Indexes
-  @@index([userId, status])
-  @@index([type, status])
-  @@index([status, priority])
-  @@index([scheduledAt])
-  @@index([createdAt])
-  @@map("notifications")
-}
-
-model Otp {
-  id         String    @id @default(uuid())
-  userId     String
-  email      String
-  code       String
-  type       OtpType
-  status     OtpStatus @default(PENDING)
-  expiresAt  DateTime
-  verifiedAt DateTime?
-  usedAt     DateTime?
-  attempts   Int       @default(0)
-  maxAttempts Int     @default(3)
-  metadata   Json?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  // Indexes
-  @@index([userId, type, status])
-  @@index([email, type, status])
-  @@index([status, expiresAt])
-  @@index([createdAt])
-  @@map("otps")
-}
-
 enum NotificationType {
   PAYMENT_CONFIRMATION
+  BOOKING_CREATED
   BOOKING_CONFIRMATION
   BOOKING_CANCELLATION
+  BOOKING_EXPIRED
   PAYMENT_FAILED
   RESOURCE_AVAILABLE
   REMINDER

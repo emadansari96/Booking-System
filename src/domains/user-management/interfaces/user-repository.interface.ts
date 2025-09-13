@@ -3,7 +3,6 @@ import { RepositoryInterface } from '../../../shared/domain/interfaces/repositor
 import { User } from '../entites/user.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
 import { Email } from '../value-objects/email.value-object';
-
 export interface UserRepositoryInterface extends RepositoryInterface<User> {
   findByEmail(email: Email): Promise<User | null>;
   findByPhone(phone: string): Promise<User | null>;

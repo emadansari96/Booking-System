@@ -1,45 +1,34 @@
 import { IsString, IsNumber, IsDateString, IsOptional, Min } from 'class-validator';
-
 export class CalculatePricingDto {
   @IsString()
   resourceId: string;
-
-  @IsString()
+@IsString()
   resourceType: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   basePrice: number;
-
-  @IsString()
+@IsString()
   currency: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   bookingDurationHours: number;
-
-  @IsDateString()
+@IsDateString()
   startDate: string;
-
-  @IsDateString()
+@IsDateString()
   endDate: string;
 }
 
 export class GetPricingBreakdownDto {
   @IsString()
   resourceId: string;
-
-  @IsString()
+@IsString()
   resourceType: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   basePrice: number;
-
-  @IsString()
+@IsString()
   currency: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   bookingDurationHours: number;
 }

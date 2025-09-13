@@ -1,6 +1,5 @@
 // src/domains/user-management/value-objects/user-role.value-object.ts
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export enum UserRole {
   CUSTOMER = 'customer',
   ADMIN = 'admin',

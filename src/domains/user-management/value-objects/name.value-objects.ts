@@ -1,6 +1,5 @@
 // src/domains/user-management/value-objects/name.value-object.ts
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export class Name extends ValueObjectBase<{ firstName: string; lastName: string }> {
   constructor(firstName: string, lastName: string) {
     if (!firstName || !lastName) {

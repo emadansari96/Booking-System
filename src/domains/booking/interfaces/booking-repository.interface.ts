@@ -1,10 +1,8 @@
 import { RepositoryInterface } from '../../../shared/domain/interfaces/repository.interface';
 import { BookingEntity } from '../entities/booking.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface BookingSearchCriteria {
   userId?: UuidValueObject;
-  resourceId?: UuidValueObject;
   resourceItemId?: UuidValueObject;
   status?: string;
   startDate?: Date;
@@ -35,7 +33,6 @@ export interface BookingAvailabilityResult {
 export interface BookingRepositoryInterface extends RepositoryInterface<BookingEntity> {
   findById(id: UuidValueObject): Promise<BookingEntity | null>;
   findByUserId(userId: UuidValueObject): Promise<BookingEntity[]>;
-  findByResourceId(resourceId: UuidValueObject): Promise<BookingEntity[]>;
   findByResourceItemId(resourceItemId: UuidValueObject): Promise<BookingEntity[]>;
   findByStatus(status: string): Promise<BookingEntity[]>;
   findByDateRange(startDate: Date, endDate: Date): Promise<BookingEntity[]>;
@@ -61,17 +58,12 @@ export interface BookingRepositoryInterface extends RepositoryInterface<BookingE
   findPaymentPendingBookings(): Promise<BookingEntity[]>;
   findPaymentFailedBookings(): Promise<BookingEntity[]>;
   search(criteria: BookingSearchCriteria): Promise<BookingSearchResult>;
-  findByUserAndResource(userId: UuidValueObject, resourceId: UuidValueObject): Promise<BookingEntity[]>;
   findByUserAndResourceItem(userId: UuidValueObject, resourceItemId: UuidValueObject): Promise<BookingEntity[]>;
   findRecentBookingsByUser(userId: UuidValueObject, limit: number): Promise<BookingEntity[]>;
-  findBookingsByDateRangeAndResource(
-    resourceId: UuidValueObject,
-    startDate: Date,
-    endDate: Date
-  ): Promise<BookingEntity[]>;
   findBookingsByDateRangeAndResourceItem(
     resourceItemId: UuidValueObject,
     startDate: Date,
     endDate: Date
   ): Promise<BookingEntity[]>;
+  findOverdueBookings(): Promise<BookingEntity[]>;
 }

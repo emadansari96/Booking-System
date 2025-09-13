@@ -11,7 +11,6 @@ import { ResourceType } from '../../value-objects/resource-type.value-object';
 import { ResourceRepositoryInterface } from '../../interfaces/resource-repository.interface';
 import { ResourceDomainService } from '../../services/resource-domain.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(UpdateResourceCommand)
 export class UpdateResourceHandler implements ICommandHandler<UpdateResourceCommand> {
   constructor(

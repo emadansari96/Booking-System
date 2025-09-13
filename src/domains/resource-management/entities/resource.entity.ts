@@ -9,7 +9,6 @@ import { ResourceType } from '../value-objects/resource-type.value-object';
 import { ResourceCreatedEvent } from '../events/resource-created.event';
 import { ResourceUpdatedEvent } from '../events/resource-updated.event';
 import { ResourceDeletedEvent } from '../events/resource-deleted.event';
-
 export interface ResourceProps {
   id: UuidValueObject;
   name: ResourceName;

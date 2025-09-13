@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { InvoiceRefundedEvent } from '../invoice-refunded.event';
-
 @EventsHandler(InvoiceRefundedEvent)
 export class InvoiceRefundedHandler implements IEventHandler<InvoiceRefundedEvent> {
   async handle(event: InvoiceRefundedEvent): Promise<void> {

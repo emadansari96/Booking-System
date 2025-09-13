@@ -5,7 +5,6 @@ import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uu
 import { ResourceItemRepositoryInterface } from '../../interfaces/resource-item-repository.interface';
 import { ResourceRepositoryInterface } from '../../interfaces/resource-repository.interface';
 import { Inject } from '@nestjs/common';
-
 @CommandHandler(CreateResourceItemCommand)
 export class CreateResourceItemHandler implements ICommandHandler<CreateResourceItemCommand> {
   constructor(

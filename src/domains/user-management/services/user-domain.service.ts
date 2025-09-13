@@ -1,23 +1,23 @@
 // src/domains/user-management/services/user-domain.service.ts
 import { Injectable, Inject } from '@nestjs/common';
-import { TypeOrmUserRepository } from '../../../shared/infrastructure/database/repositories/user.repository';
+import { PrismaUserRepository } from '../../../shared/infrastructure/database/repositories/prisma-user.repository';
 import { User } from '../entites/user.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
 import { Email } from '../value-objects/email.value-object';
 import { Name } from '../value-objects/name.value-objects';
 import { PhoneNumber } from '../value-objects/phone-number.value-object';
-import { UserRole } from '../value-objects/user-role.value-object';
+import { UserRole, UserRoleValue } from '../value-objects/user-role.value-object';
 import { CreateUserDto } from '../dtos/user.dto';
 import { AuditLogService } from '../../audit-log/services/audit-log.service';
 import { AuditDomain } from '../../audit-log/value-objects/audit-domain.value-object';
 import { AuditAction } from '../../audit-log/value-objects/audit-action.value-object';
 import { AuditStatus } from '../../audit-log/value-objects/audit-status.value-object';
 import { AuditSeverity } from '../../audit-log/value-objects/audit-severity.value-object';
-
+import { UserNotFoundException, UserAlreadyExistsException, InvalidUserRoleException, UserDeactivatedException, InvalidPhoneNumberException, InvalidEmailException } from '../../../shared/exceptions/user.exceptions';
 @Injectable()
 export class UserDomainService {
   constructor(
-    private readonly userRepository: TypeOrmUserRepository,
+    private readonly userRepository: PrismaUserRepository,
     private readonly auditLogService: AuditLogService
   ) {}
 
@@ -54,6 +54,7 @@ export class UserDomainService {
         email,
         new Name(dto.firstName, dto.lastName),
         phone,
+        dto.password,
         dto.role || UserRole.CUSTOMER,
         dto.avatarUrl
       );
@@ -90,7 +91,13 @@ export class UserDomainService {
   }
 
   async getUserById(id: string): Promise<User | null> {
-    return this.userRepository.findById(UuidValueObject.fromString(id));
+    try {
+      const uuid = UuidValueObject.fromString(id);
+      return this.userRepository.findById(uuid);
+    } catch (error) {
+      console.error('Invalid UUID format:', id, error);
+      return null;
+    }
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
@@ -208,7 +215,9 @@ export class UserDomainService {
       throw new Error('User not found');
     }
 
-    user.changeRole(role);
+    // Create UserRoleValue from UserRole enum
+    const userRoleValue = new UserRoleValue(role);
+    user.changeRole(userRoleValue);
     return this.userRepository.save(user);
   }
 

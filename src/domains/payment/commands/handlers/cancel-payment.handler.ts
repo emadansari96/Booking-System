@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CancelPaymentCommand } from '../cancel-payment.command';
 import { PaymentService } from '../../services/payment.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(CancelPaymentCommand)
 export class CancelPaymentHandler implements ICommandHandler<CancelPaymentCommand> {
   constructor(

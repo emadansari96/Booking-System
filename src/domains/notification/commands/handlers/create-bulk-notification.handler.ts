@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateBulkNotificationCommand } from '../create-bulk-notification.command';
 import { NotificationService } from '../../services/notification.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(CreateBulkNotificationCommand)
 export class CreateBulkNotificationHandler implements ICommandHandler<CreateBulkNotificationCommand> {
   constructor(

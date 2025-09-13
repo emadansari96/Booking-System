@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { DeleteResourceCommand } from '../delete-resource.command';
 import { ResourceRepositoryInterface } from '../../interfaces/resource-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(DeleteResourceCommand)
 export class DeleteResourceHandler implements ICommandHandler<DeleteResourceCommand> {
   constructor(
@@ -30,7 +29,7 @@ export class DeleteResourceHandler implements ICommandHandler<DeleteResourceComm
     // Mark resource for deletion
     existingResource.delete();
 
-    // Save changes (soft delete)
-    await this.resourceRepository.save(existingResource);
+    // Hard delete from database
+    await this.resourceRepository.delete(resourceId);
   }
 }

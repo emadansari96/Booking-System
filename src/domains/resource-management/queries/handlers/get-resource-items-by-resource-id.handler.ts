@@ -4,7 +4,6 @@ import { ResourceItemEntity } from '../../entities/resource-item.entity';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
 import { ResourceItemRepositoryInterface } from '../../interfaces/resource-item-repository.interface';
 import { Inject } from '@nestjs/common';
-
 @QueryHandler(GetResourceItemsByResourceIdQuery)
 export class GetResourceItemsByResourceIdHandler implements IQueryHandler<GetResourceItemsByResourceIdQuery> {
   constructor(

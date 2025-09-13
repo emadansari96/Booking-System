@@ -7,7 +7,6 @@ import { CreateUserHandler } from '../commands/handlers/create-user.handler';
 import { UpdateUserHandler } from '../commands/handlers/update-user.handler';
 import { ChangeUserRoleHandler } from '../commands/handlers/change-user-role.handler';
 import { DeactivateUserHandler } from '../commands/handlers/deactivate-user.handler';
-
 @Injectable()
 export class CommandBus {
   constructor(
@@ -23,13 +22,13 @@ export class CommandBus {
   async execute(command: DeactivateUserCommand): Promise<void>;
   async execute(command: CreateUserCommand | UpdateUserCommand | ChangeUserRoleCommand | DeactivateUserCommand): Promise<any> {
     if (command instanceof CreateUserCommand) {
-      return await this.createUserHandler.handle(command);
+      return await this.createUserHandler.execute(command);
     } else if (command instanceof UpdateUserCommand) {
-      return await this.updateUserHandler.handle(command);
+      return await this.updateUserHandler.execute(command);
     } else if (command instanceof ChangeUserRoleCommand) {
-      return await this.changeUserRoleHandler.handle(command);
+      return await this.changeUserRoleHandler.execute(command);
     } else if (command instanceof DeactivateUserCommand) {
-      return await this.deactivateUserHandler.handle(command);
+      return await this.deactivateUserHandler.execute(command);
     }
   }
 }

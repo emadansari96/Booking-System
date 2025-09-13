@@ -3,7 +3,6 @@ import { EventBus } from '@nestjs/cqrs';
 import { ResourceCreatedEvent } from '../events/resource-created.event';
 import { ResourceUpdatedEvent } from '../events/resource-updated.event';
 import { ResourceDeletedEvent } from '../events/resource-deleted.event';
-
 @Injectable()
 export class ResourceEventBus {
   constructor(private readonly eventBus: EventBus) {}

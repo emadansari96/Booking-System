@@ -1,65 +1,105 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpStatus, HttpCode } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { ResourceCommandBus } from '../cqrs/resource-command-bus';
-import { ResourceQueryBus } from '../cqrs/resource-query-bus';
-import { CreateResourceDto, UpdateResourceDto, ChangeResourceStatusDto, SearchResourcesDto, GetAvailableResourcesDto, GetResourceAvailabilityDto } from '../dtos/resource.dto';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, ParseUUIDPipe, UsePipes, ValidationPipe, HttpStatus, HttpCode } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
+// Commands
 import { CreateResourceCommand } from '../commands/create-resource.command';
 import { UpdateResourceCommand } from '../commands/update-resource.command';
 import { DeleteResourceCommand } from '../commands/delete-resource.command';
 import { ChangeResourceStatusCommand } from '../commands/change-resource-status.command';
+// Queries
 import { GetResourceByIdQuery } from '../queries/get-resource-by-id.query';
 import { SearchResourcesQuery } from '../queries/search-resources.query';
 import { GetAvailableResourcesQuery } from '../queries/get-available-resources.query';
 import { GetResourceAvailabilityQuery } from '../queries/get-resource-availability.query';
-
-@ApiTags('Resources')
 @Controller('resources')
+@UseGuards(JwtAuthGuard)
 export class ResourceController {
   constructor(
-    private readonly resourceCommandBus: ResourceCommandBus,
-    private readonly resourceQueryBus: ResourceQueryBus,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus
   ) {}
-
-  @Post()
+@Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new resource' })
-  @ApiResponse({ status: 201, description: 'Resource created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  async createResource(@Body() createResourceDto: CreateResourceDto) {
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+      async createResource(@Body() createResourceDto: any): Promise<any> {
     const command = new CreateResourceCommand(
       createResourceDto.name,
       createResourceDto.description,
       createResourceDto.capacity,
       createResourceDto.price,
-      createResourceDto.currency,
-      createResourceDto.status,
+      createResourceDto.currency || 'USD',
+      createResourceDto.status || 'AVAILABLE',
       createResourceDto.type,
       createResourceDto.location,
       createResourceDto.amenities,
       createResourceDto.images
     );
-    return this.resourceCommandBus.createResource(command);
+    const resource = await this.commandBus.execute(command);
+    return this.mapToResponseDto(resource);
   }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Get resource by ID' })
-  @ApiParam({ name: 'id', description: 'Resource ID' })
-  @ApiResponse({ status: 200, description: 'Resource found' })
-  @ApiResponse({ status: 404, description: 'Resource not found' })
-  async getResourceById(@Param('id') id: string) {
-    const query = new GetResourceByIdQuery(id);
-    return this.resourceQueryBus.getResourceById(query);
+@Get()
+          async getAllResources(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10
+  ): Promise<any> {
+    const query = new SearchResourcesQuery(
+      undefined, // name
+      undefined, // type
+      undefined, // status
+      undefined, // minCapacity
+      undefined, // maxCapacity
+      undefined, // minPrice
+      undefined, // maxPrice
+      undefined, // location
+      undefined, // amenities
+      page,
+      limit
+    );
+    const result = await this.queryBus.execute(query);
+    return {
+      resources: result.resources.map(resource => this.mapToResponseDto(resource)),
+      pagination: result.pagination
+    };
   }
-
-  @Put(':id')
-  @ApiOperation({ summary: 'Update resource' })
-  @ApiParam({ name: 'id', description: 'Resource ID' })
-  @ApiResponse({ status: 200, description: 'Resource updated successfully' })
-  @ApiResponse({ status: 404, description: 'Resource not found' })
-  async updateResource(
-    @Param('id') id: string,
-    @Body() updateResourceDto: UpdateResourceDto,
-  ) {
+@Get('search')
+                            async searchResources(
+    @Query('query') query?: string,
+    @Query('name') name?: string,
+    @Query('type') type?: string,
+    @Query('status') status?: string,
+    @Query('minCapacity') minCapacity?: number,
+    @Query('maxCapacity') maxCapacity?: number,
+    @Query('minPrice') minPrice?: number,
+    @Query('maxPrice') maxPrice?: number,
+    @Query('location') location?: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10
+  ): Promise<any> {
+    const searchQuery = new SearchResourcesQuery(
+      query || name,
+      type as any,
+      status as any,
+      minCapacity,
+      maxCapacity,
+      minPrice,
+      maxPrice,
+      location,
+      undefined, // amenities
+      page,
+      limit
+    );
+    const result = await this.queryBus.execute(searchQuery);
+    return {
+      resources: result.resources.map(resource => this.mapToResponseDto(resource)),
+      pagination: result.pagination
+    };
+  }
+@Put(':id')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+        async updateResource(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateResourceDto: any
+  ): Promise<any> {
     const command = new UpdateResourceCommand(
       id,
       updateResourceDto.name,
@@ -73,90 +113,94 @@ export class ResourceController {
       updateResourceDto.amenities,
       updateResourceDto.images
     );
-    return this.resourceCommandBus.updateResource(command);
+    const resource = await this.commandBus.execute(command);
+    return this.mapToResponseDto(resource);
   }
-
-  @Delete(':id')
+@Get(':id')
+        async getResourceById(@Param('id') id: string): Promise<any> {
+    // Validate UUID format manually
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      throw new Error('Invalid UUID format');
+    }
+    
+    const query = new GetResourceByIdQuery(id);
+    const resource = await this.queryBus.execute(query);
+    if (!resource) {
+      return null;
+    }
+    return this.mapToResponseDto(resource);
+  }
+@Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete resource' })
-  @ApiParam({ name: 'id', description: 'Resource ID' })
-  @ApiResponse({ status: 204, description: 'Resource deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Resource not found' })
-  async deleteResource(@Param('id') id: string) {
+        async deleteResource(@Param('id') id: string): Promise<void> {
+    // Validate UUID format manually
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      throw new Error('Invalid UUID format');
+    }
+    
     const command = new DeleteResourceCommand(id);
-    return this.resourceCommandBus.deleteResource(command);
+    await this.commandBus.execute(command);
   }
-
-  @Put(':id/status')
-  @ApiOperation({ summary: 'Change resource status' })
-  @ApiParam({ name: 'id', description: 'Resource ID' })
-  @ApiResponse({ status: 200, description: 'Resource status updated successfully' })
-  @ApiResponse({ status: 404, description: 'Resource not found' })
-  async changeResourceStatus(
-    @Param('id') id: string,
-    @Body() changeStatusDto: ChangeResourceStatusDto,
-  ) {
-    const command = new ChangeResourceStatusCommand(id, changeStatusDto.status);
-    return this.resourceCommandBus.changeResourceStatus(command);
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Search resources' })
-  @ApiResponse({ status: 200, description: 'Resources found' })
-  async searchResources(@Query() searchDto: SearchResourcesDto) {
-    const query = new SearchResourcesQuery(
-      searchDto.name,
-      searchDto.type,
-      searchDto.status,
-      searchDto.minCapacity,
-      searchDto.maxCapacity,
-      searchDto.minPrice,
-      searchDto.maxPrice,
-      searchDto.location,
-      searchDto.amenities,
-      searchDto.page,
-      searchDto.limit,
-      searchDto.sortBy,
-      searchDto.sortOrder
-    );
-    return this.resourceQueryBus.searchResources(query);
-  }
-
-  @Get('available')
-  @ApiOperation({ summary: 'Get available resources' })
-  @ApiResponse({ status: 200, description: 'Available resources found' })
-  async getAvailableResources(@Query() availableDto: GetAvailableResourcesDto) {
-    const query = new GetAvailableResourcesQuery(
-      availableDto.type,
-      availableDto.minCapacity,
-      availableDto.maxCapacity,
-      availableDto.minPrice,
-      availableDto.maxPrice,
-      availableDto.location,
-      availableDto.amenities,
-      availableDto.startDate ? new Date(availableDto.startDate) : undefined,
-      availableDto.endDate ? new Date(availableDto.endDate) : undefined,
-      availableDto.page,
-      availableDto.limit,
-      availableDto.sortBy,
-      availableDto.sortOrder
-    );
-    return this.resourceQueryBus.getAvailableResources(query);
-  }
-
-  @Get(':id/availability')
-  @ApiOperation({ summary: 'Check resource availability' })
-  @ApiParam({ name: 'id', description: 'Resource ID' })
-  @ApiResponse({ status: 200, description: 'Resource availability checked' })
-  async getResourceAvailability(
-    @Param('id') id: string,
-    @Query() availabilityDto: GetResourceAvailabilityDto,
-  ) {
+@Get(':id/availability')
+            async getResourceAvailability(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string
+  ): Promise<any> {
     const query = new GetResourceAvailabilityQuery(
       id,
-      new Date(availabilityDto.startDate),
-      new Date(availabilityDto.endDate)
+      startDate ? new Date(startDate) : new Date(),
+      endDate ? new Date(endDate) : new Date()
     );
-    return this.resourceQueryBus.getResourceAvailability(query);
+    return await this.queryBus.execute(query);
+  }
+@Get('available')
+                async getAvailableResources(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('capacity') capacity?: number,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10
+  ): Promise<any> {
+    const query = new GetAvailableResourcesQuery(
+      undefined, // type
+      undefined, // minCapacity
+      capacity, // maxCapacity
+      undefined, // minPrice
+      undefined, // maxPrice
+      undefined, // location
+      undefined, // amenities
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+      page,
+      limit
+    );
+    const result = await this.queryBus.execute(query);
+    return {
+      resources: result.resources.map(resource => this.mapToResponseDto(resource)),
+      pagination: result.pagination
+    };
+  }
+
+  // Helper method to map domain entity to response DTO
+  private mapToResponseDto(resource: any): any {
+    return {
+      id: resource.id.value,
+      name: resource.name.value,
+      description: resource.description.value,
+      capacity: resource.capacity.value,
+      price: resource.price.value,
+      currency: resource.price.currency,
+      status: resource.status.value,
+      type: resource.type.value,
+      location: resource.location,
+      amenities: resource.amenities,
+      images: resource.images,
+      isActive: resource.isActive,
+      createdAt: resource.createdAt,
+      updatedAt: resource.updatedAt
+    };
   }
 }

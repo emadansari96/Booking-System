@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ProcessBulkPaymentCommand } from '../process-bulk-payment.command';
 import { PaymentService } from '../../services/payment.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(ProcessBulkPaymentCommand)
 export class ProcessBulkPaymentHandler implements ICommandHandler<ProcessBulkPaymentCommand> {
   constructor(

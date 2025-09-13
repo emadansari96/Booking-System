@@ -1,5 +1,4 @@
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export interface ResourcePriceProps {
   value: number;
   currency: string;
@@ -34,7 +33,20 @@ export class ResourcePrice extends ValueObjectBase<ResourcePriceProps> {
   }
 
   public static fromPersistence(value: number, currency: string): ResourcePrice {
-    return new ResourcePrice({ value, currency });
+    // Handle NaN or invalid values
+    if (isNaN(value) || value === null || value === undefined) {
+      value = 0;
+    }
+    
+    // Handle invalid currency
+    if (!currency || currency.trim().length === 0) {
+      currency = 'USD';
+    }
+    
+    return new ResourcePrice({ 
+      value: Math.round(value * 100) / 100, // Round to 2 decimal places
+      currency: currency.toUpperCase().trim()
+    });
   }
 
   get value(): number {

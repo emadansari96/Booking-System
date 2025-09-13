@@ -1,5 +1,4 @@
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export enum CommissionTypeEnum {
   PERCENTAGE = 'PERCENTAGE',
   FIXED_AMOUNT = 'FIXED_AMOUNT',

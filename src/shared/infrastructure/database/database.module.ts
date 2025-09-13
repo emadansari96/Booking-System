@@ -11,7 +11,6 @@ import { PrismaNotificationRepository } from './repositories/prisma-notification
 import { PrismaOtpRepository } from './repositories/prisma-otp.repository';
 import { PrismaBookingRepository } from './repositories/prisma-booking.repository';
 import { HashingService } from '../security/hashing.service';
-
 @Module({
   providers: [
     PrismaService,

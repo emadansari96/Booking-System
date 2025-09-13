@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { GetAvailableResourcesQuery } from '../get-available-resources.query';
 import { ResourceEntity } from '../../entities/resource.entity';
 import { ResourceRepositoryInterface } from '../../interfaces/resource-repository.interface';
-
 export interface GetAvailableResourcesResult {
   resources: ResourceEntity[];
   total: number;
@@ -11,7 +10,6 @@ export interface GetAvailableResourcesResult {
   limit: number;
   totalPages: number;
 }
-
 @QueryHandler(GetAvailableResourcesQuery)
 export class GetAvailableResourcesHandler implements IQueryHandler<GetAvailableResourcesQuery> {
   constructor(

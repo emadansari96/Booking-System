@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { GetPaymentByIdQuery } from '../get-payment-by-id.query';
 import { PaymentRepositoryInterface } from '../../interfaces/payment-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(GetPaymentByIdQuery)
 export class GetPaymentByIdHandler implements IQueryHandler<GetPaymentByIdQuery> {
   constructor(

@@ -1,9 +1,7 @@
 import { BookingStatus } from '../value-objects/booking-status.value-object';
-
 export class GetBookingsQuery {
   constructor(
     public readonly userId?: string,
-    public readonly resourceId?: string,
     public readonly resourceItemId?: string,
     public readonly status?: BookingStatus,
     public readonly startDate?: Date,

@@ -1,5 +1,4 @@
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export enum NotificationStatusEnum {
   PENDING = 'PENDING',
   SENT = 'SENT',

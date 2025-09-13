@@ -1,7 +1,9 @@
 [install]
-cache = true
-frozenLockfile = false
-production = false
+cache = "~/.bun/install/cache"
+registry = "https://registry.npmjs.org"
+
+[install.scopes]
+"@types" = "https://registry.npmjs.org"
 
 [install.lockfile]
 save = true

@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateOtpCommand } from '../create-otp.command';
 import { OtpService } from '../../services/otp.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(CreateOtpCommand)
 export class CreateOtpHandler implements ICommandHandler<CreateOtpCommand> {
   constructor(

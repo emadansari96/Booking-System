@@ -9,7 +9,6 @@ import { ResourceItemCreatedEvent } from '../events/resource-item-created.event'
 import { ResourceItemUpdatedEvent } from '../events/resource-item-updated.event';
 import { ResourceItemDeletedEvent } from '../events/resource-item-deleted.event';
 import { ResourceItemStatusChangedEvent } from '../events/resource-item-status-changed.event';
-
 export interface ResourceItemProps {
   id: UuidValueObject;
   resourceId: UuidValueObject;
@@ -245,6 +244,12 @@ export class ResourceItemEntity extends AggregateRoot<ResourceItemProps> {
 
   public isAvailable(): boolean {
     return this.props.isActive && this.props.status.isAvailable();
+  }
+
+  public isBooked(): boolean {
+    // This is a simplified check - in a real scenario, you might want to check
+    // if there are any active bookings for this resource item
+    return this.props.status.value === ResourceItemStatusEnum.BOOKED;
   }
 
   public canBeBooked(): boolean {

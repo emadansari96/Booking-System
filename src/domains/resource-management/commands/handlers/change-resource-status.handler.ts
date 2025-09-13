@@ -4,7 +4,6 @@ import { ChangeResourceStatusCommand } from '../change-resource-status.command';
 import { ResourceRepositoryInterface } from '../../interfaces/resource-repository.interface';
 import { ResourceStatus } from '../../value-objects/resource-status.value-object';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(ChangeResourceStatusCommand)
 export class ChangeResourceStatusHandler implements ICommandHandler<ChangeResourceStatusCommand> {
   constructor(

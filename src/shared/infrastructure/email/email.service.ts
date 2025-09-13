@@ -23,7 +23,6 @@ export interface EmailData {
     disposition: string;
   }>;
 }
-
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);

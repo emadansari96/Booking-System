@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { GetCommissionStrategyByIdQuery } from '../get-commission-strategy-by-id.query';
 import { CommissionStrategyRepositoryInterface } from '../../interfaces/commission-strategy-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(GetCommissionStrategyByIdQuery)
 export class GetCommissionStrategyByIdHandler implements IQueryHandler<GetCommissionStrategyByIdQuery> {
   constructor(

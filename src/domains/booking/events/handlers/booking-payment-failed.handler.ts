@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { BookingPaymentFailedEvent } from '../booking-payment-failed.event';
-
 @EventsHandler(BookingPaymentFailedEvent)
 export class BookingPaymentFailedHandler implements IEventHandler<BookingPaymentFailedEvent> {
   constructor() {}

@@ -1,6 +1,5 @@
 // src/domains/user-management/value-objects/email.value-object.ts
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export class Email extends ValueObjectBase<{ value: string }> {
   constructor(email: string) {
     if (!Email.isValidEmail(email)) {

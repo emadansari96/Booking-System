@@ -8,12 +8,12 @@ import { UserRoleValue, UserRole } from '../value-objects/user-role.value-object
 import { UserRegistered } from '../events/user-registered.event';
 import { UserEmailChanged } from '../events/user-email-changed.event';
 import { UserDeactivated } from '../events/user-deactivated.events';
-
 export interface UserProps {
   id: UuidValueObject;
   email: Email;
   name: Name;
   phone: PhoneNumber;
+  password: string;
   role: UserRoleValue;
   isActive: boolean;
   avatarUrl?: string;
@@ -32,18 +32,50 @@ export class User extends AggregateRoot<UserProps> {
     email: Email,
     name: Name,
     phone: PhoneNumber,
+    password: string,
     role: UserRole = UserRole.CUSTOMER,
     avatarUrl?: string
+  ): User {
+    // Hash the password
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    
+    const props: UserProps = {
+      id,
+      email,
+      name,
+      phone,
+      password: hashedPassword,
+      role: new UserRoleValue(role),
+      isActive: true,
+      avatarUrl,
+      lastLoginAt: undefined
+    };
+
+    return new User(props);
+  }
+
+  static fromPersistence(
+    id: UuidValueObject,
+    email: Email,
+    name: Name,
+    phone: PhoneNumber,
+    hashedPassword: string,
+    role: UserRole = UserRole.CUSTOMER,
+    avatarUrl?: string,
+    isActive: boolean = true,
+    lastLoginAt?: Date
   ): User {
     const props: UserProps = {
       id,
       email,
       name,
       phone,
+      password: hashedPassword, // Already hashed from database
       role: new UserRoleValue(role),
-      isActive: true,
+      isActive,
       avatarUrl,
-      lastLoginAt: undefined
+      lastLoginAt
     };
 
     return new User(props);
@@ -70,12 +102,12 @@ export class User extends AggregateRoot<UserProps> {
     this.props.avatarUrl = avatarUrl;
   }
 
-  changeRole(newRole: UserRole): void {
-    if (this.props.role.value === newRole) {
+  changeRole(newRole: UserRoleValue): void {
+    if (this.props.role.value === newRole.value) {
       return;
     }
     
-    this.props.role = new UserRoleValue(newRole);
+    this.props.role = newRole;
   }
 
   deactivate(): void {
@@ -99,6 +131,11 @@ export class User extends AggregateRoot<UserProps> {
     this.props.lastLoginAt = new Date();
   }
 
+  async verifyPassword(password: string): Promise<boolean> {
+    const bcrypt = require('bcryptjs');
+    return await bcrypt.compare(password, this.props.password);
+  }
+
   get id(): UuidValueObject {
     return this.props.id;
   }
@@ -113,6 +150,10 @@ export class User extends AggregateRoot<UserProps> {
 
   get phone(): PhoneNumber {
     return this.props.phone;
+  }
+
+  get password(): string {
+    return this.props.password;
   }
 
   get role(): UserRoleValue {

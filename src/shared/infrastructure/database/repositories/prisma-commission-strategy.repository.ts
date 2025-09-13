@@ -7,7 +7,6 @@ import { CommissionName } from '../../../../domains/pricing/value-objects/commis
 import { CommissionType } from '../../../../domains/pricing/value-objects/commission-type.value-object';
 import { CommissionValue } from '../../../../domains/pricing/value-objects/commission-value.value-object';
 import { CommissionType as PrismaCommissionType } from '@prisma/client';
-
 @Injectable()
 export class PrismaCommissionStrategyRepository implements CommissionStrategyRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}

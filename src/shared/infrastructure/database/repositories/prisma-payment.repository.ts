@@ -8,7 +8,6 @@ import { PaymentStatus } from '../../../../domains/payment/value-objects/payment
 import { PaymentAmount } from '../../../../domains/payment/value-objects/payment-amount.value-object';
 import { Currency } from '../../../../domains/payment/value-objects/currency.value-object';
 import { PaymentMethod as PrismaPaymentMethod, PaymentStatus as PrismaPaymentStatus, Currency as PrismaCurrency } from '@prisma/client';
-
 @Injectable()
 export class PrismaPaymentRepository implements PaymentRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}

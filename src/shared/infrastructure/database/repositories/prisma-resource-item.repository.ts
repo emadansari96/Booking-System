@@ -8,7 +8,6 @@ import { ResourceItemStatus, ResourceItemStatusEnum } from '../../../../domains/
 import { ResourceItemType, ResourceItemTypeEnum } from '../../../../domains/resource-management/value-objects/resource-item-type.value-object';
 import { ResourceCapacity } from '../../../../domains/resource-management/value-objects/resource-capacity.value-object';
 import { ResourcePrice } from '../../../../domains/resource-management/value-objects/resource-price.value-object';
-
 @Injectable()
 export class PrismaResourceItemRepository implements ResourceItemRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}
@@ -108,16 +107,16 @@ export class PrismaResourceItemRepository implements ResourceItemRepositoryInter
     if (criteria.isActive !== undefined) {
       where.isActive = criteria.isActive;
     }
-    if (criteria.minCapacity !== undefined) {
+    if (criteria.minCapacity !== undefined && !isNaN(criteria.minCapacity)) {
       where.capacity = { gte: criteria.minCapacity };
     }
-    if (criteria.maxCapacity !== undefined) {
+    if (criteria.maxCapacity !== undefined && !isNaN(criteria.maxCapacity)) {
       where.capacity = { ...where.capacity, lte: criteria.maxCapacity };
     }
-    if (criteria.minPrice !== undefined) {
+    if (criteria.minPrice !== undefined && !isNaN(criteria.minPrice)) {
       where.price = { gte: criteria.minPrice };
     }
-    if (criteria.maxPrice !== undefined) {
+    if (criteria.maxPrice !== undefined && !isNaN(criteria.maxPrice)) {
       where.price = { ...where.price, lte: criteria.maxPrice };
     }
     if (criteria.location) {
@@ -154,16 +153,16 @@ export class PrismaResourceItemRepository implements ResourceItemRepositoryInter
     if (criteria.type) {
       where.type = criteria.type;
     }
-    if (criteria.minCapacity !== undefined) {
+    if (criteria.minCapacity !== undefined && !isNaN(criteria.minCapacity)) {
       where.capacity = { gte: criteria.minCapacity };
     }
-    if (criteria.maxCapacity !== undefined) {
+    if (criteria.maxCapacity !== undefined && !isNaN(criteria.maxCapacity)) {
       where.capacity = { ...where.capacity, lte: criteria.maxCapacity };
     }
-    if (criteria.minPrice !== undefined) {
+    if (criteria.minPrice !== undefined && !isNaN(criteria.minPrice)) {
       where.price = { gte: criteria.minPrice };
     }
-    if (criteria.maxPrice !== undefined) {
+    if (criteria.maxPrice !== undefined && !isNaN(criteria.maxPrice)) {
       where.price = { ...where.price, lte: criteria.maxPrice };
     }
 

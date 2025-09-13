@@ -8,7 +8,33 @@ import { Email } from '../../../../domains/user-management/value-objects/email.v
 import { Name } from '../../../../domains/user-management/value-objects/name.value-objects';
 import { PhoneNumber } from '../../../../domains/user-management/value-objects/phone-number.value-object';
 import { UserRoleValue, UserRole } from '../../../../domains/user-management/value-objects/user-role.value-object';
+// Helper function to map domain UserRole to Prisma UserRole
+function mapUserRole(domainRole: UserRole): PrismaUserRole {
+  switch (domainRole) {
+    case UserRole.CUSTOMER:
+      return PrismaUserRole.CUSTOMER;
+    case UserRole.ADMIN:
+      return PrismaUserRole.ADMIN;
+    case UserRole.MANAGER:
+      return PrismaUserRole.MANAGER;
+    default:
+      throw new Error(`Unknown user role: ${domainRole}`);
+  }
+}
 
+// Helper function to map Prisma UserRole to domain UserRole
+function mapPrismaUserRole(prismaRole: PrismaUserRole): UserRole {
+  switch (prismaRole) {
+    case PrismaUserRole.CUSTOMER:
+      return UserRole.CUSTOMER;
+    case PrismaUserRole.ADMIN:
+      return UserRole.ADMIN;
+    case PrismaUserRole.MANAGER:
+      return UserRole.MANAGER;
+    default:
+      throw new Error(`Unknown Prisma user role: ${prismaRole}`);
+  }
+}
 @Injectable()
 export class PrismaUserRepository implements UserRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}
@@ -20,7 +46,8 @@ export class PrismaUserRepository implements UserRepositoryInterface {
       firstName: user.name.firstName,
       lastName: user.name.lastName,
       phone: user.phone.value,
-      role: user.role.value as any,
+      password: user.password,
+      role: mapUserRole(user.role.value),
       isActive: user.isActive,
       avatarUrl: user.avatarUrl,
       lastLoginAt: user.lastLoginAt,
@@ -133,13 +160,16 @@ export class PrismaUserRepository implements UserRepositoryInterface {
   }
 
   private toDomainEntity(prismaUser: any): User {
-    return User.create(
+    return User.fromPersistence(
       UuidValueObject.fromString(prismaUser.id),
       new Email(prismaUser.email),
       new Name(prismaUser.firstName, prismaUser.lastName),
       new PhoneNumber(prismaUser.phone),
-      prismaUser.role as UserRole,
-      prismaUser.avatarUrl
+      prismaUser.password, // Already hashed from database
+      mapPrismaUserRole(prismaUser.role),
+      prismaUser.avatarUrl,
+      prismaUser.isActive,
+      prismaUser.lastLoginAt
     );
   }
 }

@@ -4,7 +4,6 @@ import { AuditActionValueObject } from '../value-objects/audit-action.value-obje
 import { AuditDomainValueObject } from '../value-objects/audit-domain.value-object';
 import { AuditStatusValueObject } from '../value-objects/audit-status.value-object';
 import { AuditSeverityValueObject } from '../value-objects/audit-severity.value-object';
-
 export interface AuditLogSearchCriteria {
   userId?: UuidValueObject;
   sessionId?: string;

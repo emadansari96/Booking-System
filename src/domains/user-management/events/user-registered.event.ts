@@ -1,6 +1,5 @@
 // src/domains/user-management/events/user-registered.event.ts
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class UserRegistered extends DomainEvent {
   readonly eventName = 'UserRegistered';
   readonly eventVersion = 1;

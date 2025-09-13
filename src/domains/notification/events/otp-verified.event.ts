@@ -1,5 +1,4 @@
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class OtpVerifiedEvent extends DomainEvent {
   public readonly eventName: string = 'OtpVerified';
   public readonly occurredOn: Date;

@@ -4,7 +4,6 @@ import { GetPricingBreakdownQuery } from '../get-pricing-breakdown.query';
 import { PricingService } from '../../services/pricing.service';
 import { CommissionStrategyRepositoryInterface } from '../../interfaces/commission-strategy-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(GetPricingBreakdownQuery)
 export class GetPricingBreakdownHandler implements IQueryHandler<GetPricingBreakdownQuery> {
   constructor(

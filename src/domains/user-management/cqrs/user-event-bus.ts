@@ -5,7 +5,6 @@ import { UserRoleChangedEvent } from '../events/user-role-changed.event';
 import { UserCreatedHandler } from '../events/handlers/user-created.handler';
 import { UserUpdatedHandler } from '../events/handlers/user-updated.handler';
 import { UserRoleChangedHandler } from '../events/handlers/user-role-changed.handler';
-
 @Injectable()
 export class EventBus {
   constructor(

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeactivateUserCommand } from '../deactivate-user.command';
 import { UserDomainService } from '../../services/user-domain.service';
-
 @Injectable()
-export class DeactivateUserHandler {
+@CommandHandler(DeactivateUserCommand)
+export class DeactivateUserHandler implements ICommandHandler<DeactivateUserCommand> {
   constructor(private readonly userService: UserDomainService) {}
 
-  async handle(command: DeactivateUserCommand) {
+  async execute(command: DeactivateUserCommand) {
     await this.userService.deactivateUser(command.id);
   }
 }

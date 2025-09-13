@@ -9,7 +9,6 @@ import { PaymentAmount } from '../../../../domains/payment/value-objects/payment
 import { Currency } from '../../../../domains/payment/value-objects/currency.value-object';
 import { InvoiceItem } from '../../../../domains/payment/value-objects/invoice-item.value-object';
 import { InvoiceStatus as PrismaInvoiceStatus, Currency as PrismaCurrency } from '@prisma/client';
-
 @Injectable()
 export class PrismaInvoiceRepository implements InvoiceRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}
@@ -187,7 +186,10 @@ export class PrismaInvoiceRepository implements InvoiceRepositoryInterface {
 
   async findOverdueInvoices(): Promise<InvoiceEntity[]> {
     const invoices = await this.prisma.invoice.findMany({
-      where: { status: PrismaInvoiceStatus.OVERDUE },
+      where: { 
+        status: PrismaInvoiceStatus.PENDING,
+        dueDate: { lt: new Date() }
+      },
       include: { items: true },
       orderBy: { createdAt: 'desc' },
     });

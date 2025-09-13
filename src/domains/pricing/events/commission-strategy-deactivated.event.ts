@@ -1,5 +1,4 @@
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class CommissionStrategyDeactivatedEvent extends DomainEvent {
   public readonly eventName: string = 'CommissionStrategyDeactivated';
   public readonly occurredOn: Date;

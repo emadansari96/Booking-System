@@ -1,7 +1,7 @@
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export enum PaymentStatusEnum {
   PENDING = 'PENDING',
+  NEED_TO_PAY = 'NEED_TO_PAY',
   APPROVED = 'APPROVED',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
@@ -37,6 +37,10 @@ export class PaymentStatus extends ValueObjectBase<PaymentStatusProps> {
     return this.props.value === PaymentStatusEnum.PENDING;
   }
 
+  public isNeedToPay(): boolean {
+    return this.props.value === PaymentStatusEnum.NEED_TO_PAY;
+  }
+
   public isApproved(): boolean {
     return this.props.value === PaymentStatusEnum.APPROVED;
   }
@@ -62,6 +66,8 @@ export class PaymentStatus extends ValueObjectBase<PaymentStatusProps> {
     
     switch (currentStatus) {
       case PaymentStatusEnum.PENDING:
+        return [PaymentStatusEnum.NEED_TO_PAY, PaymentStatusEnum.FAILED, PaymentStatusEnum.CANCELLED].includes(newStatus);
+      case PaymentStatusEnum.NEED_TO_PAY:
         return [PaymentStatusEnum.APPROVED, PaymentStatusEnum.FAILED, PaymentStatusEnum.CANCELLED].includes(newStatus);
       case PaymentStatusEnum.APPROVED:
         return [PaymentStatusEnum.COMPLETED, PaymentStatusEnum.FAILED, PaymentStatusEnum.CANCELLED].includes(newStatus);

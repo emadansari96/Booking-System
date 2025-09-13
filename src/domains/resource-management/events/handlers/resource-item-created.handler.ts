@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { ResourceItemCreatedEvent } from '../resource-item-created.event';
-
 @EventsHandler(ResourceItemCreatedEvent)
 export class ResourceItemCreatedHandler implements IEventHandler<ResourceItemCreatedEvent> {
   handle(event: ResourceItemCreatedEvent) {

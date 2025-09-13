@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -14,7 +8,6 @@ import { AUDIT_LOG_KEY, AuditLogOptions } from '../decorators/audit-log.decorato
 import { UuidValueObject } from '../../domain/base/value-objects/uuid.value-object';
 import { AuditStatus } from '../../../domains/audit-log/value-objects/audit-status.value-object';
 import { AuditSeverity } from '../../../domains/audit-log/value-objects/audit-severity.value-object';
-
 @Injectable()
 export class AuditLogInterceptor implements NestInterceptor {
   private readonly logger = new Logger(AuditLogInterceptor.name);

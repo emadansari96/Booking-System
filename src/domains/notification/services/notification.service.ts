@@ -4,7 +4,7 @@ import { NotificationEntity } from '../entities/notification.entity';
 import { NotificationRepositoryInterface } from '../interfaces/notification-repository.interface';
 import { NotificationStatus, NotificationStatusEnum } from '../value-objects/notification-status.value-object';
 import { EmailService } from '../../../shared/infrastructure/email/email.service';
-
+import { NotificationNotFoundException, NotificationAlreadySentException, NotificationDeliveryFailedException, InvalidNotificationTypeException, NotificationTemplateNotFoundException, NotificationRateLimitExceededException } from '../../../shared/exceptions/notification.exceptions';
 export interface CreateNotificationRequest {
   userId: UuidValueObject;
   type: string;
@@ -42,7 +42,6 @@ export interface BulkNotificationResult {
   successCount: number;
   failureCount: number;
 }
-
 @Injectable()
 export class NotificationService {
   constructor(
@@ -78,6 +77,7 @@ export class NotificationService {
         notification: savedNotification,
       };
     } catch (error) {
+      console.error('NotificationService.createNotification error:', error);
       return {
         success: false,
         message: `Failed to create notification: ${error.message}`,

@@ -11,7 +11,6 @@ import { PaymentCompletedEvent } from '../events/payment-completed.event';
 import { PaymentFailedEvent } from '../events/payment-failed.event';
 import { PaymentCancelledEvent } from '../events/payment-cancelled.event';
 import { PaymentRefundedEvent } from '../events/payment-refunded.event';
-
 export interface PaymentProps {
   id: UuidValueObject;
   userId: UuidValueObject;
@@ -55,7 +54,7 @@ export class PaymentEntity extends AggregateRoot<PaymentProps> {
       userId,
       invoiceId,
       method: PaymentMethod.create(method as any),
-      status: PaymentStatus.create(PaymentStatusEnum.PENDING),
+      status: PaymentStatus.create(PaymentStatusEnum.NEED_TO_PAY),
       amount: PaymentAmount.create(amount),
       currency: Currency.create(currency as any),
       description,
@@ -157,6 +156,21 @@ export class PaymentEntity extends AggregateRoot<PaymentProps> {
     return this.props.updatedAt;
   }
 
+  public markAsNeedToPay(): void {
+    if (!this.props.status.canTransitionTo(PaymentStatusEnum.NEED_TO_PAY)) {
+      throw new Error(`Cannot mark payment as need to pay with status: ${this.props.status.value}`);
+    }
+
+    this.props.status = PaymentStatus.create(PaymentStatusEnum.NEED_TO_PAY);
+    this.props.updatedAt = new Date();
+
+    this.addDomainEvent(new PaymentStatusChangedEvent(
+      this.props.id.value,
+      this.props.status.value,
+      PaymentStatusEnum.NEED_TO_PAY,
+    ));
+  }
+
   public approve(approvedBy: UuidValueObject): void {
     if (!this.props.status.canTransitionTo(PaymentStatusEnum.APPROVED)) {
       throw new Error(`Cannot approve payment with status: ${this.props.status.value}`);
@@ -179,7 +193,7 @@ export class PaymentEntity extends AggregateRoot<PaymentProps> {
     this.addDomainEvent(new PaymentStatusChangedEvent(
       this.props.id.value,
       this.props.status.value,
-      PaymentStatusEnum.PENDING,
+      PaymentStatusEnum.APPROVED,
     ));
   }
 

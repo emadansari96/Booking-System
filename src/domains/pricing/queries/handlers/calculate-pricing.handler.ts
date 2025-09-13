@@ -4,7 +4,6 @@ import { CalculatePricingQuery } from '../calculate-pricing.query';
 import { PricingService, PricingCalculationInput } from '../../services/pricing.service';
 import { CommissionStrategyRepositoryInterface } from '../../interfaces/commission-strategy-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(CalculatePricingQuery)
 export class CalculatePricingHandler implements IQueryHandler<CalculatePricingQuery> {
   constructor(

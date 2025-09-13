@@ -8,7 +8,6 @@ import { NotificationSentEvent } from '../events/notification-sent.event';
 import { NotificationDeliveredEvent } from '../events/notification-delivered.event';
 import { NotificationFailedEvent } from '../events/notification-failed.event';
 import { NotificationCancelledEvent } from '../events/notification-cancelled.event';
-
 export interface NotificationProps {
   id: UuidValueObject;
   userId: UuidValueObject;
@@ -50,33 +49,42 @@ export class NotificationEntity extends AggregateRoot<NotificationProps> {
     scheduledAt?: Date,
     maxRetries: number = 3
   ): NotificationEntity {
-    const notification = new NotificationEntity({
-      id,
-      userId,
-      type: NotificationType.create(type as any),
-      status: NotificationStatus.create(NotificationStatusEnum.PENDING),
-      priority: NotificationPriority.create(priority as any),
-      title,
-      message,
-      email,
-      phoneNumber,
-      metadata,
-      scheduledAt,
-      retryCount: 0,
-      maxRetries,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    try {
+      const notificationType = NotificationType.create(type as NotificationTypeEnum);
+      const notificationStatus = NotificationStatus.create(NotificationStatusEnum.PENDING);
+      const notificationPriority = NotificationPriority.create(priority as any);
 
-    notification.addDomainEvent(new NotificationCreatedEvent(
-      notification.props.id.value,
-      notification.props.userId.value,
-      notification.props.type.value,
-      notification.props.title,
-      notification.props.priority.value,
-    ));
+      const notification = new NotificationEntity({
+        id,
+        userId,
+        type: notificationType,
+        status: notificationStatus,
+        priority: notificationPriority,
+        title,
+        message,
+        email,
+        phoneNumber,
+        metadata,
+        scheduledAt,
+        retryCount: 0,
+        maxRetries,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-    return notification;
+      notification.addDomainEvent(new NotificationCreatedEvent(
+        notification.props.id.value,
+        notification.props.userId.value,
+        notification.props.type.value,
+        notification.props.title,
+        notification.props.priority.value,
+      ));
+
+      return notification;
+    } catch (error) {
+      console.error('NotificationEntity.create error:', error);
+      throw error;
+    }
   }
 
   public static fromPersistence(props: NotificationProps): NotificationEntity {

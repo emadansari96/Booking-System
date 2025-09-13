@@ -3,7 +3,6 @@ import { AuditAction } from '../value-objects/audit-action.value-object';
 import { AuditDomain } from '../value-objects/audit-domain.value-object';
 import { AuditStatus } from '../value-objects/audit-status.value-object';
 import { AuditSeverity } from '../value-objects/audit-severity.value-object';
-
 export class LogActivityCommand {
   constructor(
     public readonly userId?: UuidValueObject,

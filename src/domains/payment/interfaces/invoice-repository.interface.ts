@@ -1,7 +1,6 @@
 import { RepositoryInterface } from '../../../shared/domain/interfaces/repository.interface';
 import { InvoiceEntity } from '../entities/invoice.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface InvoiceSearchCriteria {
   userId?: UuidValueObject;
   status?: string;

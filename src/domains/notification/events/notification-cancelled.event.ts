@@ -1,5 +1,4 @@
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class NotificationCancelledEvent extends DomainEvent {
   public readonly eventName: string = 'NotificationCancelled';
   public readonly occurredOn: Date;

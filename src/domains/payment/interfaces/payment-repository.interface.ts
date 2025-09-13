@@ -1,7 +1,6 @@
 import { RepositoryInterface } from '../../../shared/domain/interfaces/repository.interface';
 import { PaymentEntity } from '../entities/payment.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface PaymentSearchCriteria {
   userId?: UuidValueObject;
   invoiceId?: UuidValueObject;

@@ -2,7 +2,6 @@
 import { RepositoryInterface } from '../../../shared/domain/interfaces/repository.interface';
 import { ResourceEntity } from '../entities/resource.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface ResourceSearchCriteria {
   name?: string;
   type?: 'ROOM' | 'HALL' | 'EQUIPMENT' | 'SERVICE' | 'VENUE';

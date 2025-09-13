@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { GetOtpByIdQuery } from '../get-otp-by-id.query';
 import { OtpRepositoryInterface } from '../../interfaces/otp-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(GetOtpByIdQuery)
 export class GetOtpByIdHandler implements IQueryHandler<GetOtpByIdQuery> {
   constructor(

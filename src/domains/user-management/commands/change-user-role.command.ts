@@ -1,11 +1,9 @@
 import { IsString, IsEnum } from 'class-validator';
-import { UserRole } from '../dtos/user-role.dto';
-
+import { UserRole } from '../value-objects/user-role.value-object';
 export class ChangeUserRoleCommand {
   @IsString()
   id: string;
-
-  @IsEnum(UserRole)
+@IsEnum(UserRole)
   role: UserRole;
 
   constructor(data: { id: string; role: UserRole }) {

@@ -3,55 +3,41 @@ import { AuditAction } from '../value-objects/audit-action.value-object';
 import { AuditDomain } from '../value-objects/audit-domain.value-object';
 import { AuditStatus } from '../value-objects/audit-status.value-object';
 import { AuditSeverity } from '../value-objects/audit-severity.value-object';
-
 export class LogActivityDto {
   @IsOptional()
   @IsString()
   userId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   sessionId?: string;
-
-  @IsEnum(AuditAction)
+@IsEnum(AuditAction)
   action: AuditAction;
-
-  @IsEnum(AuditDomain)
+@IsEnum(AuditDomain)
   domain: AuditDomain;
-
-  @IsString()
+@IsString()
   entityType: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   entityId?: string;
-
-  @IsEnum(AuditStatus)
+@IsEnum(AuditStatus)
   status: AuditStatus;
-
-  @IsEnum(AuditSeverity)
+@IsEnum(AuditSeverity)
   severity: AuditSeverity;
-
-  @IsString()
+@IsString()
   description: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   oldValues?: Record<string, any>;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   newValues?: Record<string, any>;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
-
-  @IsOptional()
+@IsOptional()
   @IsIP()
   ipAddress?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   userAgent?: string;
 }

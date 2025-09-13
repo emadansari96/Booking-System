@@ -1,5 +1,4 @@
 import { IsString } from 'class-validator';
-
 export class GetUserActivityQuery {
   @IsString()
   id: string;

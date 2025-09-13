@@ -5,7 +5,6 @@ import { SearchResourcesQuery } from '../queries/search-resources.query';
 import { GetAvailableResourcesQuery } from '../queries/get-available-resources.query';
 import { GetResourceAvailabilityQuery } from '../queries/get-resource-availability.query';
 import { ResourceEntity } from '../entities/resource.entity';
-
 export interface SearchResourcesResult {
   resources: ResourceEntity[];
   total: number;
@@ -35,7 +34,6 @@ export interface ResourceAvailabilityResult {
     endDate: Date;
   }>;
 }
-
 @Injectable()
 export class ResourceQueryBus {
   constructor(private readonly queryBus: QueryBus) {}

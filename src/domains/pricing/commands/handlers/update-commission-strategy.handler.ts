@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { UpdateCommissionStrategyCommand } from '../update-commission-strategy.command';
 import { CommissionStrategyRepositoryInterface } from '../../interfaces/commission-strategy-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @CommandHandler(UpdateCommissionStrategyCommand)
 export class UpdateCommissionStrategyHandler implements ICommandHandler<UpdateCommissionStrategyCommand> {
   constructor(

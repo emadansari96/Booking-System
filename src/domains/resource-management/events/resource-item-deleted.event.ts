@@ -1,5 +1,4 @@
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class ResourceItemDeletedEvent extends DomainEvent {
   public readonly eventName: string = 'ResourceItemDeleted';
   public readonly occurredOn: Date;

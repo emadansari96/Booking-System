@@ -10,7 +10,6 @@ import { ResourceStatus } from '../../value-objects/resource-status.value-object
 import { ResourceType } from '../../value-objects/resource-type.value-object';
 import { ResourceRepositoryInterface } from '../../interfaces/resource-repository.interface';
 import { ResourceDomainService } from '../../services/resource-domain.service';
-
 @CommandHandler(CreateResourceCommand)
 export class CreateResourceHandler implements ICommandHandler<CreateResourceCommand> {
   constructor(

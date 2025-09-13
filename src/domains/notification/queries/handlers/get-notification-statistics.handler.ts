@@ -2,7 +2,6 @@ import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { GetNotificationStatisticsQuery } from '../get-notification-statistics.query';
 import { NotificationService } from '../../services/notification.service';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(GetNotificationStatisticsQuery)
 export class GetNotificationStatisticsHandler implements IQueryHandler<GetNotificationStatisticsQuery> {
   constructor(

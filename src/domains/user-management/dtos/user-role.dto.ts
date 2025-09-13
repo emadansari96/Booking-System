@@ -1,6 +1,5 @@
 // src/domains/user-management/dtos/user-role.dto.ts
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
-
 export enum UserRole {
   CUSTOMER = 'customer',
   ADMIN = 'admin',
@@ -20,8 +19,7 @@ export class UserRoleDto {
 export class ChangeUserRoleDto {
   @IsNotEmpty({ message: 'User ID is required' })
   userId: string;
-
-  @IsNotEmpty({ message: 'Role is required' })
+@IsNotEmpty({ message: 'Role is required' })
   @IsEnum(UserRole, { message: 'Invalid user role. Must be one of: customer, admin, manager' })
   role: UserRole;
 }
@@ -99,11 +97,9 @@ export class UserRoleValidationDto {
   @IsOptional()
   @IsEnum(UserRole, { message: 'Invalid user role' })
   currentRole?: UserRole;
-
-  @IsNotEmpty({ message: 'Target role is required' })
+@IsNotEmpty({ message: 'Target role is required' })
   @IsEnum(UserRole, { message: 'Invalid target role' })
   targetRole: UserRole;
-
-  @IsNotEmpty({ message: 'User ID is required' })
+@IsNotEmpty({ message: 'User ID is required' })
   userId: string;
 }

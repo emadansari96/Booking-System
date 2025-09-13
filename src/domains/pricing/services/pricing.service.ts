@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommissionStrategyEntity } from '../entities/commission-strategy.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
-
+import { CommissionStrategyNotFoundException, InvalidCommissionRateException, InvalidCommissionTypeException, CommissionStrategyConflictException, PricingCalculationFailedException, InvalidPricingPeriodException, CommissionStrategyInUseException, InvalidDiscountException, PricingRuleNotFoundException } from '../../../shared/exceptions/pricing.exceptions';
 export interface PricingCalculationInput {
   resourceId: UuidValueObject;
   resourceType: string;
@@ -32,7 +32,6 @@ export interface PricingCalculationResult {
     totalAmount: number;
   };
 }
-
 @Injectable()
 export class PricingService {
   /**

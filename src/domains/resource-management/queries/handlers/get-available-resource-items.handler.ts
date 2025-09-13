@@ -3,7 +3,6 @@ import { GetAvailableResourceItemsQuery } from '../get-available-resource-items.
 import { ResourceItemAvailabilityResult } from '../../interfaces/resource-item-repository.interface';
 import { ResourceItemRepositoryInterface } from '../../interfaces/resource-item-repository.interface';
 import { Inject } from '@nestjs/common';
-
 @QueryHandler(GetAvailableResourceItemsQuery)
 export class GetAvailableResourceItemsHandler implements IQueryHandler<GetAvailableResourceItemsQuery> {
   constructor(

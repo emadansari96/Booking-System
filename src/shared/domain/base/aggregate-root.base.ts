@@ -1,5 +1,4 @@
 import { DomainEvent } from '../events/domain-event.base';
-
 export abstract class AggregateRoot<T> {
   protected readonly props: T;
   private _domainEvents: DomainEvent[] = [];

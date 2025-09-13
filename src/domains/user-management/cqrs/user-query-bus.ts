@@ -5,7 +5,6 @@ import { GetUserActivityQuery } from '../queries/get-user-activity.query';
 import { GetUserByIdHandler } from '../queries/handlers/get-user-by-id.handler';
 import { SearchUsersHandler } from '../queries/handlers/search-users.handler';
 import { GetUserActivityHandler } from '../queries/handlers/get-user-activity.handler';
-
 @Injectable()
 export class QueryBus {
   constructor(
@@ -19,11 +18,11 @@ export class QueryBus {
   async execute(query: GetUserActivityQuery): Promise<{ isActive: boolean; lastLoginAt: Date | null }>;
   async execute(query: GetUserByIdQuery | SearchUsersQuery | GetUserActivityQuery): Promise<any> {
     if (query instanceof GetUserByIdQuery) {
-      return await this.getUserByIdHandler.handle(query);
+      return await this.getUserByIdHandler.execute(query);
     } else if (query instanceof SearchUsersQuery) {
-      return await this.searchUsersHandler.handle(query);
+      return await this.searchUsersHandler.execute(query);
     } else if (query instanceof GetUserActivityQuery) {
-      return await this.getUserActivityHandler.handle(query);
+      return await this.getUserActivityHandler.execute(query);
     }
   }
 }

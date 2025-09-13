@@ -10,7 +10,6 @@ import { InvoiceStatusChangedEvent } from '../events/invoice-status-changed.even
 import { InvoicePaidEvent } from '../events/invoice-paid.event';
 import { InvoiceCancelledEvent } from '../events/invoice-cancelled.event';
 import { InvoiceRefundedEvent } from '../events/invoice-refunded.event';
-
 export interface InvoiceProps {
   id: UuidValueObject;
   invoiceNumber: InvoiceNumber;

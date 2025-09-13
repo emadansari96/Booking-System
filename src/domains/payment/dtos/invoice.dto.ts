@@ -1,6 +1,4 @@
 import { IsString, IsNumber, IsDateString, IsOptional, IsEnum, Min, IsArray, ValidateNested, IsObject } from 'class-validator';
-import { Type } from 'class-transformer';
-
 export enum InvoiceStatusDto {
   DRAFT = 'DRAFT',
   PENDING = 'PENDING',
@@ -13,30 +11,23 @@ export enum InvoiceStatusDto {
 export class InvoiceItemDto {
   @IsString()
   id: string;
-
-  @IsString()
+@IsString()
   resourceId: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   resourceItemId?: string;
-
-  @IsString()
+@IsString()
   description: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   quantity: number;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   unitPrice: number;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   totalPrice: number;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }

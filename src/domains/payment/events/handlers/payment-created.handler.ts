@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { PaymentCreatedEvent } from '../payment-created.event';
-
 @EventsHandler(PaymentCreatedEvent)
 export class PaymentCreatedHandler implements IEventHandler<PaymentCreatedEvent> {
   async handle(event: PaymentCreatedEvent): Promise<void> {

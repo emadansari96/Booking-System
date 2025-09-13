@@ -2,7 +2,6 @@ import { SetMetadata } from '@nestjs/common';
 import { AuditAction } from '../../../domains/audit-log/value-objects/audit-action.value-object';
 import { AuditDomain } from '../../../domains/audit-log/value-objects/audit-domain.value-object';
 import { AuditSeverity } from '../../../domains/audit-log/value-objects/audit-severity.value-object';
-
 export interface AuditLogOptions {
   action: AuditAction;
   domain: AuditDomain;

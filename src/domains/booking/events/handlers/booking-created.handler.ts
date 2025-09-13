@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { BookingCreatedEvent } from '../booking-created.event';
-
 @EventsHandler(BookingCreatedEvent)
 export class BookingCreatedHandler implements IEventHandler<BookingCreatedEvent> {
   constructor() {}

@@ -1,8 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Schema, SchemaFactory, Prop } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
 export type AuditLogDocument = AuditLog & Document;
-
 @Schema({ 
   collection: 'audit_logs',
   timestamps: true,
@@ -11,50 +9,35 @@ export type AuditLogDocument = AuditLog & Document;
 export class AuditLog {
   @Prop({ required: true, type: String })
   id: string;
-
-  @Prop({ type: String })
+@Prop({ type: String })
   userId?: string;
-
-  @Prop({ type: String })
+@Prop({ type: String })
   sessionId?: string;
-
-  @Prop({ required: true, type: String })
+@Prop({ required: true, type: String })
   action: string;
-
-  @Prop({ required: true, type: String })
+@Prop({ required: true, type: String })
   domain: string;
-
-  @Prop({ required: true, type: String })
+@Prop({ required: true, type: String })
   entityType: string;
-
-  @Prop({ type: String })
+@Prop({ type: String })
   entityId?: string;
-
-  @Prop({ required: true, type: String })
+@Prop({ required: true, type: String })
   status: string;
-
-  @Prop({ required: true, type: String })
+@Prop({ required: true, type: String })
   severity: string;
-
-  @Prop({ required: true, type: String })
+@Prop({ required: true, type: String })
   description: string;
-
-  @Prop({ type: Object })
+@Prop({ type: Object })
   oldValues?: Record<string, any>;
-
-  @Prop({ type: Object })
+@Prop({ type: Object })
   newValues?: Record<string, any>;
-
-  @Prop({ type: Object })
+@Prop({ type: Object })
   metadata?: Record<string, any>;
-
-  @Prop({ type: String })
+@Prop({ type: String })
   ipAddress?: string;
-
-  @Prop({ type: String })
+@Prop({ type: String })
   userAgent?: string;
-
-  @Prop({ required: true, type: Date })
+@Prop({ required: true, type: Date })
   timestamp: Date;
 }
 

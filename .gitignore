@@ -4,6 +4,8 @@
 
 # Bun
 bun.lockb
+~/.bun/
+.bun/
 
 # Logs
 logs

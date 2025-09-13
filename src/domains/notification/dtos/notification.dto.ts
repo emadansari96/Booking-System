@@ -1,39 +1,29 @@
 import { IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsObject, IsArray, IsUUID } from 'class-validator';
-
 export class CreateNotificationDto {
   @IsUUID()
   userId: string;
-
-  @IsEnum(['PAYMENT_CONFIRMATION', 'BOOKING_CONFIRMATION', 'BOOKING_CANCELLATION', 'PAYMENT_FAILED', 'RESOURCE_AVAILABLE', 'REMINDER', 'SYSTEM_UPDATE', 'PROMOTION', 'SECURITY_ALERT', 'GENERAL'])
+@IsEnum(['PAYMENT_CONFIRMATION', 'BOOKING_CONFIRMATION', 'BOOKING_CANCELLATION', 'PAYMENT_FAILED', 'RESOURCE_AVAILABLE', 'REMINDER', 'SYSTEM_UPDATE', 'PROMOTION', 'SECURITY_ALERT', 'GENERAL'])
   type: string;
-
-  @IsString()
+@IsString()
   title: string;
-
-  @IsString()
+@IsString()
   message: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['LOW', 'NORMAL', 'HIGH', 'URGENT'])
   priority?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   email?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   phoneNumber?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   scheduledAt?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   maxRetries?: number;
 }
@@ -42,29 +32,22 @@ export class CreateBulkNotificationDto {
   @IsArray()
   @IsUUID('4', { each: true })
   userIds: string[];
-
-  @IsEnum(['PAYMENT_CONFIRMATION', 'BOOKING_CONFIRMATION', 'BOOKING_CANCELLATION', 'PAYMENT_FAILED', 'RESOURCE_AVAILABLE', 'REMINDER', 'SYSTEM_UPDATE', 'PROMOTION', 'SECURITY_ALERT', 'GENERAL'])
+@IsEnum(['PAYMENT_CONFIRMATION', 'BOOKING_CONFIRMATION', 'BOOKING_CANCELLATION', 'PAYMENT_FAILED', 'RESOURCE_AVAILABLE', 'REMINDER', 'SYSTEM_UPDATE', 'PROMOTION', 'SECURITY_ALERT', 'GENERAL'])
   type: string;
-
-  @IsString()
+@IsString()
   title: string;
-
-  @IsString()
+@IsString()
   message: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['LOW', 'NORMAL', 'HIGH', 'URGENT'])
   priority?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   scheduledAt?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   maxRetries?: number;
 }
@@ -106,40 +89,31 @@ export class GetNotificationsDto {
   @IsOptional()
   @IsUUID()
   userId?: string;
-
-  @IsOptional()
-  @IsEnum(['PAYMENT_CONFIRMATION', 'BOOKING_CONFIRMATION', 'BOOKING_CANCELLATION', 'PAYMENT_FAILED', 'RESOURCE_AVAILABLE', 'REMINDER', 'SYSTEM_UPDATE', 'PROMOTION', 'SECURITY_ALERT', 'GENERAL'])
+@IsOptional()
+  @IsEnum(['PAYMENT_CONFIRMATION', 'BOOKING_CREATED', 'BOOKING_CONFIRMATION', 'BOOKING_CANCELLATION', 'BOOKING_EXPIRED', 'PAYMENT_FAILED', 'RESOURCE_AVAILABLE', 'REMINDER', 'SYSTEM_UPDATE', 'PROMOTION', 'SECURITY_ALERT', 'GENERAL'])
   type?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['PENDING', 'SENT', 'DELIVERED', 'FAILED', 'CANCELLED'])
   status?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['LOW', 'NORMAL', 'HIGH', 'URGENT'])
   priority?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   startDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   endDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   page?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   limit?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['createdAt', 'scheduledAt', 'priority', 'status'])
   sortBy?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['ASC', 'DESC'])
   sortOrder?: string;
 }

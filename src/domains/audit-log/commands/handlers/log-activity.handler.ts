@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LogActivityCommand } from '../log-activity.command';
 import { AuditLogService } from '../../services/audit-log.service';
-
 @CommandHandler(LogActivityCommand)
 export class LogActivityHandler implements ICommandHandler<LogActivityCommand> {
   constructor(private readonly auditLogService: AuditLogService) {}

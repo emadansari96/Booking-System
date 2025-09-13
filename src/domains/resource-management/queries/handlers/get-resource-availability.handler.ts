@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { GetResourceAvailabilityQuery } from '../get-resource-availability.query';
 import { ResourceRepositoryInterface } from '../../interfaces/resource-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface ResourceAvailabilityResult {
   resourceId: string;
   isAvailable: boolean;
@@ -14,7 +13,6 @@ export interface ResourceAvailabilityResult {
     endDate: Date;
   };
 }
-
 @QueryHandler(GetResourceAvailabilityQuery)
 export class GetResourceAvailabilityHandler implements IQueryHandler<GetResourceAvailabilityQuery> {
   constructor(

@@ -1,24 +1,27 @@
 // src/domains/user-management/user-role.module.ts
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserRoleController } from './controllers/user-role.controller';
 import { UserRoleService } from './services/user-role.service';
 import { UserDomainService } from './services/user-domain.service';
-import { TypeOrmUserRepository } from '../../shared/infrastructure/database/repositories/user.repository';
-import { UserEntity } from '../../shared/infrastructure/database/entities/user.entity';
+import { PrismaUserRepository } from '../../shared/infrastructure/database/repositories/prisma-user.repository';
 import { HashingService } from '../../shared/infrastructure/security/hashing.service';
-
+import { DatabaseModule } from '../../shared/infrastructure/database/database.module';
+import { AuditLogCqrsModule } from '../audit-log/cqrs/audit-log-cqrs.module';
+import { AuditLogService } from '../audit-log/services/audit-log.service';
+import { CqrsModule } from '@nestjs/cqrs';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity])
+    DatabaseModule,
+    AuditLogCqrsModule,
+    CqrsModule
   ],
-  controllers: [UserRoleController],
+  controllers: [],
   providers: [
     UserRoleService,
     UserDomainService,
-    TypeOrmUserRepository,
-    HashingService
+    PrismaUserRepository,
+    HashingService,
+    AuditLogService
   ],
-  exports: [UserRoleService]
+  exports: [UserRoleService, CqrsModule]
 })
 export class UserRoleModule {}

@@ -11,7 +11,6 @@ import { AuditDomain } from '../../audit-log/value-objects/audit-domain.value-ob
 import { AuditAction } from '../../audit-log/value-objects/audit-action.value-object';
 import { AuditStatus } from '../../audit-log/value-objects/audit-status.value-object';
 import { AuditSeverity } from '../../audit-log/value-objects/audit-severity.value-object';
-
 export interface PaymentRequest {
   userId: UuidValueObject;
   resourceId: UuidValueObject;
@@ -28,10 +27,11 @@ export interface PaymentRequest {
 }
 
 export interface PaymentResult {
-  payment: PaymentEntity;
-  invoice: InvoiceEntity;
+  payment?: PaymentEntity;
+  invoice?: InvoiceEntity;
   success: boolean;
   message: string;
+  error?: string;
 }
 
 export interface BulkPaymentRequest {
@@ -62,7 +62,6 @@ export interface BulkPaymentResult {
   success: boolean;
   message: string;
 }
-
 @Injectable()
 export class PaymentService {
   constructor(
@@ -83,6 +82,10 @@ export class PaymentService {
     try {
       // Get commission strategies for pricing calculation
       const commissionStrategies = await this.commissionStrategyRepository.findActiveStrategies();
+      
+      console.log('Commission strategies found:', commissionStrategies.length);
+      console.log('Resource type:', request.resourceType);
+      console.log('Base price:', request.basePrice);
 
       // Calculate pricing
       const pricingResult = this.pricingService.calculatePricing({
@@ -94,6 +97,8 @@ export class PaymentService {
         startDate: request.startDate,
         endDate: request.endDate,
       }, commissionStrategies);
+      
+      console.log('Pricing result:', pricingResult);
 
       // Create invoice
       const invoice = InvoiceEntity.create(
@@ -132,8 +137,13 @@ export class PaymentService {
       );
 
       // Save invoice and payment
+      console.log('Saving invoice...');
       const savedInvoice = await this.invoiceRepository.save(invoice);
+      console.log('Invoice saved:', savedInvoice.id.value);
+      
+      console.log('Saving payment...');
       const savedPayment = await this.paymentRepository.save(payment);
+      console.log('Payment saved:', savedPayment.id.value);
 
       // Log successful payment creation
       await this.auditLogService.logEntityCreation(
@@ -172,6 +182,13 @@ export class PaymentService {
         message: 'Payment processed successfully',
       };
     } catch (error) {
+      console.error('Payment processing failed:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      
       // Log failed payment
       await this.auditLogService.logFailedOperation(
         request.userId,
@@ -267,46 +284,6 @@ export class PaymentService {
         invoice: null as any,
         success: false,
         message: `Bulk payment processing failed: ${error.message}`,
-      };
-    }
-  }
-
-  /**
-   * Approve a cash payment (admin action)
-   */
-  async approvePayment(paymentId: UuidValueObject, approvedBy: UuidValueObject): Promise<PaymentResult> {
-    try {
-      const payment = await this.paymentRepository.findById(paymentId);
-      if (!payment) {
-        throw new Error(`Payment with id ${paymentId.value} not found`);
-      }
-
-      if (!payment.requiresApproval()) {
-        throw new Error('This payment does not require approval');
-      }
-
-      if (!payment.isPending()) {
-        throw new Error(`Cannot approve payment with status: ${payment.status.value}`);
-      }
-
-      // Approve payment
-      payment.approve(approvedBy);
-
-      // Save updated payment
-      const savedPayment = await this.paymentRepository.save(payment);
-
-      return {
-        payment: savedPayment,
-        invoice: null as any,
-        success: true,
-        message: 'Payment approved successfully',
-      };
-    } catch (error) {
-      return {
-        payment: null as any,
-        invoice: null as any,
-        success: false,
-        message: `Payment approval failed: ${error.message}`,
       };
     }
   }
@@ -520,5 +497,156 @@ export class PaymentService {
       cancelledPayments,
       refundedPayments,
     };
+  }
+
+  /**
+   * Get payments with filters
+   */
+  async getPayments(
+    userId?: UuidValueObject,
+    status?: string,
+    page?: number,
+    limit?: number
+  ): Promise<any> {
+    const payments = await this.paymentRepository.findAll();
+    
+    let filteredPayments = payments;
+    
+    if (userId) {
+      filteredPayments = payments.filter(p => p.userId.equals(userId));
+    }
+    if (status) {
+      filteredPayments = filteredPayments.filter(p => p.status.value === status);
+    }
+
+    const total = filteredPayments.length;
+    const startIndex = page ? (page - 1) * (limit || 10) : 0;
+    const endIndex = limit ? startIndex + limit : total;
+    const paginatedPayments = filteredPayments.slice(startIndex, endIndex);
+
+    return {
+      payments: paginatedPayments,
+      total,
+      page: page || 1,
+      limit: limit || 10,
+    };
+  }
+
+  /**
+   * Approve a payment (Admin only)
+   */
+  async approvePayment(paymentId: UuidValueObject, approvedBy: UuidValueObject): Promise<PaymentResult> {
+    try {
+      const payment = await this.paymentRepository.findById(paymentId);
+      if (!payment) {
+        return {
+          success: false,
+          message: 'Payment not found',
+          error: 'PAYMENT_NOT_FOUND',
+        };
+      }
+
+      if (!payment.status.isNeedToPay()) {
+        return {
+          success: false,
+          message: `Cannot approve payment with status: ${payment.status.value}`,
+          error: 'INVALID_PAYMENT_STATUS',
+        };
+      }
+
+      // Approve the payment
+      payment.approve(approvedBy);
+      const savedPayment = await this.paymentRepository.save(payment);
+
+      // Complete the payment to trigger booking confirmation
+      payment.complete();
+      const completedPayment = await this.paymentRepository.save(payment);
+
+      // Log successful payment approval
+      await this.auditLogService.logEntityUpdate(
+        approvedBy,
+        AuditDomain.PAYMENT,
+        'Payment',
+        completedPayment.id.value,
+        { status: 'NEED_TO_PAY' }, // oldValues
+        {
+          status: completedPayment.status.value,
+          approvedBy: approvedBy.value,
+          approvedAt: completedPayment.approvedAt?.toISOString(),
+          completedAt: completedPayment.completedAt?.toISOString(),
+        } // newValues
+      );
+
+      return {
+        success: true,
+        message: 'Payment approved and completed successfully',
+        payment: completedPayment,
+        invoice: null as any,
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        message: `Failed to approve payment: ${error.message}`,
+        error: 'PAYMENT_APPROVAL_FAILED',
+      };
+    }
+  }
+
+  /**
+   * Reject a payment (Admin only)
+   */
+  async rejectPayment(paymentId: UuidValueObject, rejectedBy: UuidValueObject, reason?: string): Promise<PaymentResult> {
+    try {
+      const payment = await this.paymentRepository.findById(paymentId);
+      if (!payment) {
+        return {
+          success: false,
+          message: 'Payment not found',
+          error: 'PAYMENT_NOT_FOUND',
+        };
+      }
+
+      if (!payment.status.isNeedToPay()) {
+        return {
+          success: false,
+          message: `Cannot reject payment with status: ${payment.status.value}`,
+          error: 'INVALID_PAYMENT_STATUS',
+        };
+      }
+
+      // Reject the payment
+      payment.fail(reason || 'Payment rejected by admin');
+      const savedPayment = await this.paymentRepository.save(payment);
+
+      // Log successful payment rejection
+      await this.auditLogService.logEntityUpdate(
+        rejectedBy,
+        AuditDomain.PAYMENT,
+        'Payment',
+        savedPayment.id.value,
+        { status: 'NEED_TO_PAY' }, // oldValues
+        {
+          status: savedPayment.status.value,
+          rejectedBy: rejectedBy.value,
+          rejectedAt: savedPayment.failedAt?.toISOString(),
+          reason: reason || 'Payment rejected by admin',
+        } // newValues
+      );
+
+      return {
+        success: true,
+        message: 'Payment rejected successfully',
+        payment: savedPayment,
+        invoice: null as any,
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        message: `Failed to reject payment: ${error.message}`,
+        error: 'PAYMENT_REJECTION_FAILED',
+      };
+    }
   }
 }

@@ -1,6 +1,5 @@
 // src/domains/user-management/events/user-deactivated.event.ts
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class UserDeactivated extends DomainEvent {
   readonly eventName = 'UserDeactivated';
   readonly eventVersion = 1;

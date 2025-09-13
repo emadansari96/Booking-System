@@ -6,12 +6,7 @@ import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uu
 import { NotificationType, NotificationTypeEnum } from '../../../../domains/notification/value-objects/notification-type.value-object';
 import { NotificationStatus, NotificationStatusEnum } from '../../../../domains/notification/value-objects/notification-status.value-object';
 import { NotificationPriority, NotificationPriorityEnum } from '../../../../domains/notification/value-objects/notification-priority.value-object';
-import { 
-  NotificationType as PrismaNotificationType,
-  NotificationStatus as PrismaNotificationStatus,
-  NotificationPriority as PrismaNotificationPriority
-} from '@prisma/client';
-
+import { NotificationType as PrismaNotificationType, NotificationStatus as PrismaNotificationStatus, NotificationPriority as PrismaNotificationPriority } from '@prisma/client';
 @Injectable()
 export class PrismaNotificationRepository implements NotificationRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}
@@ -239,7 +234,7 @@ export class PrismaNotificationRepository implements NotificationRepositoryInter
         skip,
         take: limit,
         orderBy: {
-          [criteria.sortBy || 'createdAt']: criteria.sortOrder || 'desc',
+          [criteria.sortBy || 'createdAt']: (criteria.sortOrder || 'desc').toLowerCase() as 'asc' | 'desc',
         },
       }),
       this.prisma.notification.count({ where }),

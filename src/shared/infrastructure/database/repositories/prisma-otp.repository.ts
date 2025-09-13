@@ -6,11 +6,7 @@ import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uu
 import { OtpCode } from '../../../../domains/notification/value-objects/otp-code.value-object';
 import { OtpType, OtpTypeEnum } from '../../../../domains/notification/value-objects/otp-type.value-object';
 import { OtpStatus, OtpStatusEnum } from '../../../../domains/notification/value-objects/otp-status.value-object';
-import { 
-  OtpType as PrismaOtpType,
-  OtpStatus as PrismaOtpStatus
-} from '@prisma/client';
-
+import { OtpType as PrismaOtpType, OtpStatus as PrismaOtpStatus } from '@prisma/client';
 @Injectable()
 export class PrismaOtpRepository implements OtpRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}

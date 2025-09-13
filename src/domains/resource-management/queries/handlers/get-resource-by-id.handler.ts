@@ -4,7 +4,6 @@ import { GetResourceByIdQuery } from '../get-resource-by-id.query';
 import { ResourceEntity } from '../../entities/resource.entity';
 import { ResourceRepositoryInterface } from '../../interfaces/resource-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(GetResourceByIdQuery)
 export class GetResourceByIdHandler implements IQueryHandler<GetResourceByIdQuery> {
   constructor(

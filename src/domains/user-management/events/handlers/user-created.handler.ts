@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { UserCreatedEvent } from '../user-created.event';
 import { RedisService } from '../../../../shared/infrastructure/redis/redis.service';
-
 @Injectable()
-export class UserCreatedHandler {
+@EventsHandler(UserCreatedEvent)
+export class UserCreatedHandler implements IEventHandler<UserCreatedEvent> {
   constructor(private readonly redisService: RedisService) {}
 
   async handle(event: UserCreatedEvent) {

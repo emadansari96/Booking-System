@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ChangeUserRoleCommand } from '../change-user-role.command';
 import { UserDomainService } from '../../services/user-domain.service';
 import { UserRoleChangedEvent } from '../../events/user-role-changed.event';
-import { EventBus } from '../../cqrs/user-event-bus';
-
+import { EventBus } from '@nestjs/cqrs';
 @Injectable()
-export class ChangeUserRoleHandler {
+@CommandHandler(ChangeUserRoleCommand)
+export class ChangeUserRoleHandler implements ICommandHandler<ChangeUserRoleCommand> {
   constructor(
     private readonly userService: UserDomainService,
     private readonly eventBus: EventBus
   ) {}
 
-  async handle(command: ChangeUserRoleCommand) {
+  async execute(command: ChangeUserRoleCommand) {
     // Get user before role change to capture old role
     const userBeforeChange = await this.userService.getUserById(command.id);
     if (!userBeforeChange) {

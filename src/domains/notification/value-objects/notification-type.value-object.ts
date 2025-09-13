@@ -1,9 +1,10 @@
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
 export enum NotificationTypeEnum {
   PAYMENT_CONFIRMATION = 'PAYMENT_CONFIRMATION',
+  BOOKING_CREATED = 'BOOKING_CREATED',
   BOOKING_CONFIRMATION = 'BOOKING_CONFIRMATION',
   BOOKING_CANCELLATION = 'BOOKING_CANCELLATION',
+  BOOKING_EXPIRED = 'BOOKING_EXPIRED',
   PAYMENT_FAILED = 'PAYMENT_FAILED',
   RESOURCE_AVAILABLE = 'RESOURCE_AVAILABLE',
   REMINDER = 'REMINDER',
@@ -46,8 +47,10 @@ export class NotificationType extends ValueObjectBase<NotificationTypeProps> {
 
   public isBookingRelated(): boolean {
     return [
+      NotificationTypeEnum.BOOKING_CREATED,
       NotificationTypeEnum.BOOKING_CONFIRMATION,
       NotificationTypeEnum.BOOKING_CANCELLATION,
+      NotificationTypeEnum.BOOKING_EXPIRED,
       NotificationTypeEnum.RESOURCE_AVAILABLE,
       NotificationTypeEnum.REMINDER,
     ].includes(this.props.value);

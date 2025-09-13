@@ -6,7 +6,6 @@ import { AuditActionValueObject, AuditAction } from '../value-objects/audit-acti
 import { AuditDomainValueObject, AuditDomain } from '../value-objects/audit-domain.value-object';
 import { AuditStatusValueObject, AuditStatus } from '../value-objects/audit-status.value-object';
 import { AuditSeverityValueObject, AuditSeverity } from '../value-objects/audit-severity.value-object';
-
 export interface LogActivityRequest {
   userId?: UuidValueObject;
   sessionId?: string;
@@ -41,7 +40,6 @@ export interface AuditLogSearchRequest {
   sortBy?: 'timestamp' | 'severity' | 'action' | 'domain';
   sortOrder?: 'ASC' | 'DESC';
 }
-
 @Injectable()
 export class AuditLogService {
   constructor(

@@ -1,7 +1,6 @@
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
 import { PaymentAmount } from './payment-amount.value-object';
-
 export interface InvoiceItemProps {
   id: UuidValueObject;
   resourceId: UuidValueObject;

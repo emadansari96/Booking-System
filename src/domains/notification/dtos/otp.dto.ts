@@ -1,24 +1,18 @@
 import { IsString, IsOptional, IsEnum, IsNumber, IsObject, IsUUID } from 'class-validator';
-
 export class CreateOtpDto {
   @IsUUID()
   userId: string;
-
-  @IsString()
+@IsString()
   email: string;
-
-  @IsEnum(['registration', 'login', 'password-reset'])
+@IsEnum(['registration', 'login', 'password-reset'])
   type: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   expiresInMinutes?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   maxAttempts?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -26,14 +20,11 @@ export class CreateOtpDto {
 export class VerifyOtpDto {
   @IsUUID()
   userId: string;
-
-  @IsString()
+@IsString()
   email: string;
-
-  @IsString()
+@IsString()
   code: string;
-
-  @IsEnum(['registration', 'login', 'password-reset'])
+@IsEnum(['registration', 'login', 'password-reset'])
   type: string;
 }
 
@@ -66,32 +57,25 @@ export class GetOtpsDto {
   @IsOptional()
   @IsUUID()
   userId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   email?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['REGISTRATION', 'LOGIN', 'PASSWORD_RESET'])
   type?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['PENDING', 'VERIFIED', 'EXPIRED', 'USED'])
   status?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   page?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   limit?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['createdAt', 'expiresAt', 'type'])
   sortBy?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['ASC', 'DESC'])
   sortOrder?: string;
 }

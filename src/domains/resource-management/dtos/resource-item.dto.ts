@@ -1,6 +1,5 @@
 import { IsString, IsNumber, IsOptional, IsArray, IsEnum, IsBoolean, IsDateString, Min, Max, Length } from 'class-validator';
 import { Type } from 'class-transformer';
-
 export enum ResourceItemStatusEnum {
   AVAILABLE = 'AVAILABLE',
   BOOKED = 'BOOKED',
@@ -22,46 +21,37 @@ export enum ResourceItemTypeEnum {
 }
 
 export class CreateResourceItemDto {
-  @IsString()
+    @IsString()
   @Length(1, 100)
   name: string;
-
-  @IsEnum(ResourceItemTypeEnum)
+@IsEnum(ResourceItemTypeEnum)
   type: ResourceItemTypeEnum;
-
-  @IsNumber()
+@IsNumber()
   @Min(1)
   @Max(10000)
   capacity: number;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   price: number;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   @Length(3, 3)
   currency?: string = 'USD';
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(ResourceItemStatusEnum)
   status?: ResourceItemStatusEnum = ResourceItemStatusEnum.AVAILABLE;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   @Length(1, 255)
   location?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   amenities?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   images?: string[];
@@ -72,22 +62,18 @@ export class UpdateResourceItemDto {
   @IsString()
   @Length(1, 100)
   name?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   @Length(1, 255)
   location?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   amenities?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   images?: string[];
@@ -120,55 +106,44 @@ export class SearchResourceItemsDto {
   @IsOptional()
   @IsString()
   resourceId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(ResourceItemStatusEnum)
   status?: ResourceItemStatusEnum;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(ResourceItemTypeEnum)
   type?: ResourceItemTypeEnum;
-
-  @IsOptional()
+@IsOptional()
   @IsBoolean()
   isActive?: boolean;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   minCapacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   maxCapacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   minPrice?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   maxPrice?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   location?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   amenities?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   @Type(() => Number)
   page?: number = 1;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -179,34 +154,27 @@ export class SearchResourceItemsDto {
 export class GetAvailableResourceItemsDto {
   @IsDateString()
   startDate: string;
-
-  @IsDateString()
+@IsDateString()
   endDate: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(ResourceItemStatusEnum)
   status?: ResourceItemStatusEnum;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(ResourceItemTypeEnum)
   type?: ResourceItemTypeEnum;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   minCapacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   maxCapacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   minPrice?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   maxPrice?: number;

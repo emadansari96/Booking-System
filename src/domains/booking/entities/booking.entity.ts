@@ -10,11 +10,9 @@ import { BookingCompletedEvent } from '../events/booking-completed.event';
 import { BookingExpiredEvent } from '../events/booking-expired.event';
 import { BookingPaymentPendingEvent } from '../events/booking-payment-pending.event';
 import { BookingPaymentFailedEvent } from '../events/booking-payment-failed.event';
-
 export interface BookingProps {
   id: UuidValueObject;
   userId: UuidValueObject;
-  resourceId: UuidValueObject;
   resourceItemId: UuidValueObject;
   status: BookingStatus;
   period: BookingPeriod;
@@ -39,7 +37,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
   public static create(
     id: UuidValueObject,
     userId: UuidValueObject,
-    resourceId: UuidValueObject,
     resourceItemId: UuidValueObject,
     startDate: Date,
     endDate: Date,
@@ -48,16 +45,16 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
     currency: string,
     notes?: string,
     paymentDeadlineMinutes: number = 10,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
+    totalPrice?: number
   ): BookingEntity {
     const period = BookingPeriod.create(startDate, endDate);
-    const price = BookingPrice.create(basePrice, commissionAmount, currency);
+    const price = BookingPrice.create(basePrice, commissionAmount, currency, totalPrice);
     const paymentDeadline = new Date(Date.now() + paymentDeadlineMinutes * 60 * 1000);
 
     const booking = new BookingEntity({
       id,
       userId,
-      resourceId,
       resourceItemId,
       status: BookingStatus.create(BookingStatusEnum.PENDING),
       period,
@@ -72,7 +69,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
     booking.addDomainEvent(new BookingCreatedEvent(
       booking.props.id.value,
       booking.props.userId.value,
-      booking.props.resourceId.value,
       booking.props.resourceItemId.value,
       booking.props.period.startDate,
       booking.props.period.endDate,
@@ -94,10 +90,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
 
   get userId(): UuidValueObject {
     return this.props.userId;
-  }
-
-  get resourceId(): UuidValueObject {
-    return this.props.resourceId;
   }
 
   get resourceItemId(): UuidValueObject {
@@ -168,7 +160,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
     this.addDomainEvent(new BookingConfirmedEvent(
       this.props.id.value,
       this.props.userId.value,
-      this.props.resourceId.value,
       this.props.resourceItemId.value,
       this.props.period.startDate,
       this.props.period.endDate,
@@ -191,7 +182,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
     this.addDomainEvent(new BookingCancelledEvent(
       this.props.id.value,
       this.props.userId.value,
-      this.props.resourceId.value,
       this.props.resourceItemId.value,
       this.props.period.startDate,
       this.props.period.endDate,
@@ -211,7 +201,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
     this.addDomainEvent(new BookingCompletedEvent(
       this.props.id.value,
       this.props.userId.value,
-      this.props.resourceId.value,
       this.props.resourceItemId.value,
       this.props.period.startDate,
       this.props.period.endDate,
@@ -230,7 +219,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
     this.addDomainEvent(new BookingExpiredEvent(
       this.props.id.value,
       this.props.userId.value,
-      this.props.resourceId.value,
       this.props.resourceItemId.value,
       this.props.period.startDate,
       this.props.period.endDate,
@@ -248,7 +236,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
     this.addDomainEvent(new BookingPaymentPendingEvent(
       this.props.id.value,
       this.props.userId.value,
-      this.props.resourceId.value,
       this.props.resourceItemId.value,
       this.props.period.startDate,
       this.props.period.endDate,
@@ -270,7 +257,6 @@ export class BookingEntity extends AggregateRoot<BookingProps> {
     this.addDomainEvent(new BookingPaymentFailedEvent(
       this.props.id.value,
       this.props.userId.value,
-      this.props.resourceId.value,
       this.props.resourceItemId.value,
       this.props.period.startDate,
       this.props.period.endDate,

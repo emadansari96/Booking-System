@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { GetInvoiceByIdQuery } from '../get-invoice-by-id.query';
 import { InvoiceRepositoryInterface } from '../../interfaces/invoice-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(GetInvoiceByIdQuery)
 export class GetInvoiceByIdHandler implements IQueryHandler<GetInvoiceByIdQuery> {
   constructor(

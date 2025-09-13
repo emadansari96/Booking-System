@@ -1,48 +1,38 @@
 import { IsString, IsNumber, IsOptional, IsArray, IsEnum, IsDateString, Min, Max, Length } from 'class-validator';
 import { Type } from 'class-transformer';
-
 export class CreateResourceDto {
-  @IsString()
+    @IsString()
   @Length(1, 100)
   name: string;
-
-  @IsString()
+@IsString()
   @Length(1, 500)
   description: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(1)
   @Max(1000)
   capacity: number;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   @Max(1000000)
   price: number;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   @Length(3, 3)
   currency?: string = 'USD';
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['AVAILABLE', 'BOOKED', 'MAINTENANCE', 'UNAVAILABLE'])
   status?: 'AVAILABLE' | 'BOOKED' | 'MAINTENANCE' | 'UNAVAILABLE' = 'AVAILABLE';
-
-  @IsEnum(['ROOM', 'HALL', 'EQUIPMENT', 'SERVICE', 'VENUE'])
+@IsEnum(['ROOM', 'HALL', 'EQUIPMENT', 'SERVICE', 'VENUE'])
   type: 'ROOM' | 'HALL' | 'EQUIPMENT' | 'SERVICE' | 'VENUE';
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   @Length(1, 200)
   location?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   amenities?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   images?: string[];
@@ -53,48 +43,39 @@ export class UpdateResourceDto {
   @IsString()
   @Length(1, 100)
   name?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   @Length(1, 500)
   description?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   @Max(1000)
   capacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   @Max(1000000)
   price?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   @Length(3, 3)
   currency?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['AVAILABLE', 'BOOKED', 'MAINTENANCE', 'UNAVAILABLE'])
   status?: 'AVAILABLE' | 'BOOKED' | 'MAINTENANCE' | 'UNAVAILABLE';
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['ROOM', 'HALL', 'EQUIPMENT', 'SERVICE', 'VENUE'])
   type?: 'ROOM' | 'HALL' | 'EQUIPMENT' | 'SERVICE' | 'VENUE';
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   @Length(1, 200)
   location?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   amenities?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   images?: string[];
@@ -109,62 +90,50 @@ export class SearchResourcesDto {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['ROOM', 'HALL', 'EQUIPMENT', 'SERVICE', 'VENUE'])
   type?: 'ROOM' | 'HALL' | 'EQUIPMENT' | 'SERVICE' | 'VENUE';
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['AVAILABLE', 'BOOKED', 'MAINTENANCE', 'UNAVAILABLE'])
   status?: 'AVAILABLE' | 'BOOKED' | 'MAINTENANCE' | 'UNAVAILABLE';
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   minCapacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   maxCapacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   minPrice?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   maxPrice?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   location?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   amenities?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   @Type(() => Number)
   page?: number = 1;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   @Max(100)
   @Type(() => Number)
   limit?: number = 10;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['name', 'price', 'capacity', 'createdAt'])
   sortBy?: 'name' | 'price' | 'capacity' | 'createdAt' = 'createdAt';
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC' = 'DESC';
 }
@@ -173,62 +142,50 @@ export class GetAvailableResourcesDto {
   @IsOptional()
   @IsEnum(['ROOM', 'HALL', 'EQUIPMENT', 'SERVICE', 'VENUE'])
   type?: 'ROOM' | 'HALL' | 'EQUIPMENT' | 'SERVICE' | 'VENUE';
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   minCapacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   maxCapacity?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   minPrice?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   maxPrice?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   location?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsArray()
   @IsString({ each: true })
   amenities?: string[];
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   startDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   endDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   @Type(() => Number)
   page?: number = 1;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   @Max(100)
   @Type(() => Number)
   limit?: number = 10;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['name', 'price', 'capacity', 'createdAt'])
   sortBy?: 'name' | 'price' | 'capacity' | 'createdAt' = 'createdAt';
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC' = 'DESC';
 }
@@ -236,7 +193,6 @@ export class GetAvailableResourcesDto {
 export class GetResourceAvailabilityDto {
   @IsDateString()
   startDate: string;
-
-  @IsDateString()
+@IsDateString()
   endDate: string;
 }

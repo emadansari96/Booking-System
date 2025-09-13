@@ -1,7 +1,6 @@
 import { RepositoryInterface } from '../../../shared/domain/interfaces/repository.interface';
 import { ResourceItemEntity } from '../entities/resource-item.entity';
 import { UuidValueObject } from '../../../shared/domain/base/value-objects/uuid.value-object';
-
 export interface ResourceItemSearchCriteria {
   resourceId?: string;
   status?: string;

@@ -1,25 +1,32 @@
 # Multi-stage build for NestJS application
-FROM oven/bun:1.0-alpine AS base
+FROM oven/bun:1-alpine AS base
 
-# Set working directory
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lockb ./
+COPY package.json bun.lockb* ./
 
-# Install dependencies
-RUN bun install --frozen-lockfile
+# Install dependencies with Bun (skip optional dependencies)
+RUN bun install --no-optional
 
 # Copy source code
 COPY . .
 
-# Build application
+# Generate Prisma client
+RUN bunx prisma generate
+
+# Build the application
 RUN bun run build
 
 # Production stage
-FROM oven/bun:1.0-alpine AS production
+FROM oven/bun:1-alpine AS production
 
-# Set working directory
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 # Copy built application
@@ -27,8 +34,14 @@ COPY --from=base /app/dist ./dist
 COPY --from=base /app/node_modules ./node_modules
 COPY --from=base /app/package.json ./package.json
 
-# Expose port
+# Create non-root user
+RUN addgroup -S nodejs && adduser -S nestjs -G nodejs
+USER nestjs
+
 EXPOSE 3000
 
-# Start application
-CMD ["bun", "run", "start:prod"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+CMD ["node",  "dist/main.js"]

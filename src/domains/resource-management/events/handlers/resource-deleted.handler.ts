@@ -1,7 +1,6 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { ResourceDeletedEvent } from '../resource-deleted.event';
 import { Logger } from '@nestjs/common';
-
 @EventsHandler(ResourceDeletedEvent)
 export class ResourceDeletedHandler implements IEventHandler<ResourceDeletedEvent> {
   private readonly logger = new Logger(ResourceDeletedHandler.name);

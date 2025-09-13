@@ -1,27 +1,20 @@
 import { IsString, IsOptional, IsDateString, IsNumber, IsEnum, IsObject, Min, Max } from 'class-validator';
 import { BookingStatus } from '../value-objects/booking-status.value-object';
-
 export class CreateBookingDto {
   @IsString()
   userId: string;
-
-  @IsString()
+@IsString()
   resourceId: string;
-
-  @IsString()
+@IsString()
   resourceItemId: string;
-
-  @IsDateString()
+@IsDateString()
   startDate: string;
-
-  @IsDateString()
+@IsDateString()
   endDate: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   notes?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -29,12 +22,10 @@ export class CreateBookingDto {
 export class ConfirmBookingDto {
   @IsString()
   bookingId: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   notes?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -42,12 +33,10 @@ export class ConfirmBookingDto {
 export class CancelBookingDto {
   @IsString()
   bookingId: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   reason?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -55,12 +44,10 @@ export class CancelBookingDto {
 export class CompleteBookingDto {
   @IsString()
   bookingId: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   notes?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -68,12 +55,10 @@ export class CompleteBookingDto {
 export class ExpireBookingDto {
   @IsString()
   bookingId: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   reason?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -81,11 +66,9 @@ export class ExpireBookingDto {
 export class ProcessBookingPaymentDto {
   @IsString()
   bookingId: string;
-
-  @IsString()
+@IsString()
   paymentMethod: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -94,33 +77,26 @@ export class GetBookingsDto {
   @IsOptional()
   @IsString()
   userId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   resourceId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   resourceItemId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(BookingStatus)
   status?: BookingStatus;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   startDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   endDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   page?: number = 1;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -130,11 +106,9 @@ export class GetBookingsDto {
 export class CheckBookingAvailabilityDto {
   @IsString()
   resourceItemId: string;
-
-  @IsDateString()
+@IsDateString()
   startDate: string;
-
-  @IsDateString()
+@IsDateString()
   endDate: string;
 }
 
@@ -142,16 +116,13 @@ export class GetBookingStatisticsDto {
   @IsOptional()
   @IsString()
   userId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   resourceId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   startDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   endDate?: string;
 }

@@ -1,6 +1,5 @@
 // src/domains/user-management/events/user-email-changed.event.ts
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class UserEmailChanged extends DomainEvent {
   readonly eventName = 'UserEmailChanged';
   readonly eventVersion = 1;

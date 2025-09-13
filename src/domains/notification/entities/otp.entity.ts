@@ -7,7 +7,6 @@ import { OtpCreatedEvent } from '../events/otp-created.event';
 import { OtpVerifiedEvent } from '../events/otp-verified.event';
 import { OtpExpiredEvent } from '../events/otp-expired.event';
 import { OtpUsedEvent } from '../events/otp-used.event';
-
 export interface OtpProps {
   id: UuidValueObject;
   userId: UuidValueObject;

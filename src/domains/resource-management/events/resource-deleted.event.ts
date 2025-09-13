@@ -1,6 +1,5 @@
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
 import { ResourceEntity } from '../entities/resource.entity';
-
 export interface ResourceDeletedEventPayload {
   id: string;
   name: string;

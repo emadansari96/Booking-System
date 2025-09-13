@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { CommissionStrategyUpdatedEvent } from '../commission-strategy-updated.event';
-
 @EventsHandler(CommissionStrategyUpdatedEvent)
 export class CommissionStrategyUpdatedHandler implements IEventHandler<CommissionStrategyUpdatedEvent> {
   async handle(event: CommissionStrategyUpdatedEvent): Promise<void> {

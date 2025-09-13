@@ -1,5 +1,4 @@
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class PaymentApprovedEvent extends DomainEvent {
   public readonly eventName: string = 'PaymentApproved';
   public readonly occurredOn: Date;

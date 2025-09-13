@@ -1,23 +1,19 @@
 import { IsEmail, IsString, IsEnum, IsOptional, IsPhoneNumber } from 'class-validator';
 import { UserRole } from '../dtos/user-role.dto';
-
 export class CreateUserCommand {
   @IsEmail()
   email: string;
-
-  @IsString()
+@IsString()
   firstName: string;
-
-  @IsString()
+@IsString()
   lastName: string;
-
-  @IsPhoneNumber()
+@IsPhoneNumber()
   phone: string;
-
-  @IsEnum(UserRole)
+@IsString()
+  password: string;
+@IsEnum(UserRole)
   role: UserRole;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   avatarUrl?: string;
 
@@ -26,6 +22,7 @@ export class CreateUserCommand {
     firstName: string;
     lastName: string;
     phone: string;
+    password: string;
     role: UserRole;
     avatarUrl?: string;
   }) {
@@ -33,6 +30,7 @@ export class CreateUserCommand {
     this.firstName = data.firstName;
     this.lastName = data.lastName;
     this.phone = data.phone;
+    this.password = data.password;
     this.role = data.role;
     this.avatarUrl = data.avatarUrl;
   }

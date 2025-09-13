@@ -9,7 +9,6 @@ import { AuditActionValueObject } from '../../../../domains/audit-log/value-obje
 import { AuditDomainValueObject } from '../../../../domains/audit-log/value-objects/audit-domain.value-object';
 import { AuditStatusValueObject } from '../../../../domains/audit-log/value-objects/audit-status.value-object';
 import { AuditSeverityValueObject } from '../../../../domains/audit-log/value-objects/audit-severity.value-object';
-
 @Injectable()
 export class MongoDBAuditLogRepository implements AuditLogRepositoryInterface {
   constructor(

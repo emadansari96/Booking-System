@@ -1,6 +1,5 @@
-import { IsString, IsNumber, IsDateString, IsOptional, IsEnum, Min, IsArray, ValidateNested, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
-
+import { IsString, IsNumber, IsDateString, IsOptional, IsEnum, Min, IsArray, ValidateNested, IsObject } from 'class-validator';
 export enum PaymentMethodDto {
   CASH = 'CASH',
   CREDIT_CARD = 'CREDIT_CARD',
@@ -20,42 +19,31 @@ export enum PaymentStatusDto {
 export class ProcessPaymentDto {
   @IsString()
   userId: string;
-
-  @IsString()
+@IsString()
   resourceId: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   resourceItemId?: string;
-
-  @IsString()
+@IsString()
   resourceType: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   basePrice: number;
-
-  @IsString()
+@IsString()
   currency: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   bookingDurationHours: number;
-
-  @IsDateString()
+@IsDateString()
   startDate: string;
-
-  @IsDateString()
+@IsDateString()
   endDate: string;
-
-  @IsEnum(PaymentMethodDto)
+@IsEnum(PaymentMethodDto)
   paymentMethod: PaymentMethodDto;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -63,33 +51,25 @@ export class ProcessPaymentDto {
 export class BulkPaymentItemDto {
   @IsString()
   resourceId: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   resourceItemId?: string;
-
-  @IsString()
+@IsString()
   resourceType: string;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   basePrice: number;
-
-  @IsNumber()
+@IsNumber()
   @Min(0)
   bookingDurationHours: number;
-
-  @IsDateString()
+@IsDateString()
   startDate: string;
-
-  @IsDateString()
+@IsDateString()
   endDate: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }
@@ -97,36 +77,28 @@ export class BulkPaymentItemDto {
 export class ProcessBulkPaymentDto {
   @IsString()
   userId: string;
-
-  @IsArray()
+@IsArray()
   @ValidateNested({ each: true })
   @Type(() => BulkPaymentItemDto)
   items: BulkPaymentItemDto[];
-
-  @IsString()
+@IsString()
   currency: string;
-
-  @IsEnum(PaymentMethodDto)
+@IsEnum(PaymentMethodDto)
   paymentMethod: PaymentMethodDto;
-
-  @IsDateString()
+@IsDateString()
   dueDate: string;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   taxRate?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsNumber()
   @Min(0)
   discountAmount?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   notes?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }

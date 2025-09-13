@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { UserRoleChangedEvent } from '../user-role-changed.event';
 import { RedisService } from '../../../../shared/infrastructure/redis/redis.service';
-
 @Injectable()
-export class UserRoleChangedHandler {
+@EventsHandler(UserRoleChangedEvent)
+export class UserRoleChangedHandler implements IEventHandler<UserRoleChangedEvent> {
   constructor(private readonly redisService: RedisService) {}
 
   async handle(event: UserRoleChangedEvent) {

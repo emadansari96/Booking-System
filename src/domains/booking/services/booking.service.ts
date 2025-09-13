@@ -6,7 +6,7 @@ import { BookingRepositoryInterface } from '../interfaces/booking-repository.int
 import { RedisLockService } from '../../../shared/infrastructure/redis/redis-lock.service';
 import { NotificationService } from '../../notification/services/notification.service';
 import { PricingService } from '../../pricing/services/pricing.service';
-import { PaymentService } from '../../payment/services/payment.service';
+import { InvoiceService } from '../../payment/services/invoice.service';
 import { UserRepositoryInterface } from '../../user-management/interfaces/user-repository.interface';
 import { CommissionStrategyRepositoryInterface } from '../../pricing/interfaces/commission-strategy-repository.interface';
 import { ResourceRepositoryInterface } from '../../resource-management/interfaces/resource-repository.interface';
@@ -16,10 +16,9 @@ import { AuditDomain } from '../../audit-log/value-objects/audit-domain.value-ob
 import { AuditAction } from '../../audit-log/value-objects/audit-action.value-object';
 import { AuditStatus } from '../../audit-log/value-objects/audit-status.value-object';
 import { AuditSeverity } from '../../audit-log/value-objects/audit-severity.value-object';
-
+import { BookingNotFoundException, BookingPeriodOverlapException, BookingExpiredException, BookingCancelledException, BookingAlreadyConfirmedException, ResourceItemNotAvailableException, InvalidBookingPeriodException } from '../../../shared/exceptions/booking.exceptions';
 export interface CreateBookingRequest {
   userId: UuidValueObject;
-  resourceId: UuidValueObject;
   resourceItemId: UuidValueObject;
   startDate: Date;
   endDate: Date;
@@ -31,6 +30,9 @@ export interface BookingResult {
   success: boolean;
   message: string;
   booking?: BookingEntity;
+  invoice?: any;
+  invoiceStatus?: string;
+  invoiceError?: string;
   error?: string;
 }
 
@@ -46,7 +48,6 @@ export interface BookingAvailabilityResult {
   conflictingBookings: BookingEntity[];
   message: string;
 }
-
 @Injectable()
 export class BookingService {
   constructor(
@@ -63,7 +64,7 @@ export class BookingService {
     private readonly redisLockService: RedisLockService,
     private readonly notificationService: NotificationService,
     private readonly pricingService: PricingService,
-    private readonly paymentService: PaymentService,
+    private readonly invoiceService: InvoiceService,
     private readonly configService: ConfigService,
     private readonly auditLogService: AuditLogService,
   ) {}
@@ -73,43 +74,36 @@ export class BookingService {
    */
   async createBooking(request: CreateBookingRequest): Promise<BookingResult> {
     try {
+      // Validate booking period
+      if (request.endDate <= request.startDate) {
+        throw new InvalidBookingPeriodException(request.startDate, request.endDate);
+      }
+
       // Validate user exists
       const user = await this.userRepository.findById(request.userId);
       if (!user) {
-        return {
-          success: false,
-          message: 'User not found',
-          error: 'USER_NOT_FOUND',
-        };
+        throw new Error('User not found');
       }
 
-      // Validate resource exists
-      const resource = await this.resourceRepository.findById(request.resourceId);
-      if (!resource) {
-        return {
-          success: false,
-          message: 'Resource not found',
-          error: 'RESOURCE_NOT_FOUND',
-        };
-      }
-
-      // Validate resource item exists
+      // Get resource from resource item
       const resourceItem = await this.resourceItemRepository.findById(request.resourceItemId);
       if (!resourceItem) {
-        return {
-          success: false,
-          message: 'Resource item not found',
-          error: 'RESOURCE_ITEM_NOT_FOUND',
-        };
+        throw new Error('Resource item not found');
+      }
+
+      // Check if resource item is available
+      if (!resourceItem.isActive || resourceItem.status.value !== 'AVAILABLE') {
+        throw new ResourceItemNotAvailableException(request.resourceItemId.value);
+      }
+
+      const resource = await this.resourceRepository.findById(resourceItem.resourceId);
+      if (!resource) {
+        throw new Error('Resource not found');
       }
 
       // Validate resource item belongs to resource
-      if (!resourceItem.resourceId.equals(request.resourceId)) {
-        return {
-          success: false,
-          message: 'Resource item does not belong to the specified resource',
-          error: 'RESOURCE_ITEM_MISMATCH',
-        };
+      if (!resourceItem.resourceId.equals(resource.id)) {
+        throw new Error('Resource item does not belong to the specified resource');
       }
 
       // Validate dates
@@ -152,29 +146,36 @@ export class BookingService {
         // Calculate pricing first
         const commissionStrategies = await this.commissionStrategyRepository.findActiveStrategies();
         const pricingResult = this.pricingService.calculatePricing({
-          resourceId: request.resourceId,
+          resourceId: resource.id,
           resourceType: resource.type.value,
           bookingDurationHours: Math.ceil((request.endDate.getTime() - request.startDate.getTime()) / (1000 * 60 * 60)),
-          basePrice: resource.price.value,
-          currency: resource.currency || 'USD',
+          basePrice: resourceItem.price.value,
+          currency: resourceItem.price.currency,
           startDate: request.startDate,
           endDate: request.endDate,
         }, commissionStrategies);
+
+        console.log('Pricing result for booking:', {
+          basePrice: pricingResult.basePrice,
+          commission: pricingResult.commission,
+          totalPrice: pricingResult.totalPrice,
+          currency: pricingResult.currency
+        });
 
         // Create booking entity
         const booking = BookingEntity.create(
           UuidValueObject.generate(),
           request.userId,
-          request.resourceId,
           request.resourceItemId,
           request.startDate,
           request.endDate,
-          pricingResult.basePrice,
+          pricingResult.subtotal, // Use subtotal as basePrice for booking
           pricingResult.commission,
           pricingResult.currency,
           request.notes,
           this.configService.get<number>('BOOKING_PAYMENT_DEADLINE_MINUTES', 10),
-          request.metadata
+          request.metadata,
+          pricingResult.totalPrice
         );
 
         // Try to save booking directly - GIST index will prevent overlaps
@@ -184,11 +185,7 @@ export class BookingService {
         } catch (error) {
           // Check if it's an overlap constraint violation
           if (error.code === 'OVERLAP_CONSTRAINT' || error.message?.includes('overlaps')) {
-            return {
-              success: false,
-              message: 'Booking period is already reserved by another user',
-              error: 'PERIOD_ALREADY_RESERVED',
-            };
+            throw new BookingPeriodOverlapException(request.startDate, request.endDate);
           }
           // Re-throw other errors
           throw error;
@@ -201,7 +198,6 @@ export class BookingService {
           'Booking',
           savedBooking.id.value,
           {
-            resourceId: request.resourceId.value,
             resourceItemId: request.resourceItemId.value,
             startDate: request.startDate.toISOString(),
             endDate: request.endDate.toISOString(),
@@ -211,29 +207,82 @@ export class BookingService {
           }
         );
 
+        // Create invoice automatically (no payment yet)
+        let invoiceResult;
+        try {
+          invoiceResult = await this.invoiceService.createInvoice({
+            userId: request.userId,
+            items: [{
+              resourceId: resource.id,
+              resourceItemId: request.resourceItemId,
+              description: `Booking for ${resource.name}`,
+              quantity: 1,
+              unitPrice: pricingResult.totalPrice,
+              metadata: {
+                bookingId: savedBooking.id.value,
+                resourceItemId: request.resourceItemId.value,
+                resourceName: resource.name,
+              },
+            }],
+            currency: resourceItem.price.currency,
+            dueDate: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes from now
+            taxRate: 0,
+            discountAmount: 0,
+            description: `Invoice for booking ${savedBooking.id.value}`,
+            metadata: {
+              bookingId: savedBooking.id.value,
+              resourceItemId: request.resourceItemId.value,
+              resourceName: resource.name,
+            },
+          });
+        } catch (invoiceError) {
+          console.error('Invoice creation failed:', invoiceError);
+          // Log invoice creation failure but don't fail the booking
+          await this.auditLogService.logEntityCreation(
+            request.userId,
+            AuditDomain.INVOICE,
+            'Invoice Creation Failed',
+            'N/A',
+            {
+              bookingId: savedBooking.id.value,
+              error: invoiceError.message,
+              resourceItemId: request.resourceItemId.value,
+            }
+          );
+          invoiceResult = { success: false, message: 'Invoice creation failed', error: invoiceError.message };
+        }
+
         // Send notification to user
-        await this.notificationService.createNotification({
-          userId: request.userId,
-          type: 'BOOKING_CONFIRMATION',
-          title: 'Booking Created Successfully',
-          message: `Your booking for ${resource.name} has been created. Please complete payment within ${this.configService.get<number>('BOOKING_PAYMENT_DEADLINE_MINUTES', 10)} minutes.`,
-          priority: 'HIGH',
-          email: user.email.value,
-          metadata: {
-            bookingId: savedBooking.id.value,
-            resourceName: resource.name,
-            startDate: request.startDate.toISOString(),
-            endDate: request.endDate.toISOString(),
-            totalPrice: savedBooking.price.totalPrice,
-            currency: savedBooking.price.currency,
-            paymentDeadline: savedBooking.paymentDeadline?.toISOString(),
-          },
-        });
+        try {
+          await this.notificationService.createNotification({
+            userId: request.userId,
+            type: 'BOOKING_CREATED',
+            title: 'Booking Reserved Successfully',
+            message: `Your booking for ${resource.name.value} has been reserved. Please complete payment within ${this.configService.get<number>('BOOKING_PAYMENT_DEADLINE_MINUTES', 5)} minutes to confirm your reservation.`,
+            priority: 'HIGH',
+            email: user.email.value,
+            metadata: {
+              bookingId: savedBooking.id.value,
+              invoiceId: invoiceResult.invoice?.id.value,
+              resourceName: resource.name.value,
+              startDate: request.startDate.toISOString(),
+              endDate: request.endDate.toISOString(),
+              totalPrice: savedBooking.price.totalPrice,
+              currency: savedBooking.price.currency,
+              paymentDeadline: savedBooking.paymentDeadline?.toISOString(),
+            },
+          });
+        } catch (notificationError) {
+          console.error('Notification creation failed:', notificationError);
+        }
 
         return {
           success: true,
           message: 'Booking created successfully',
           booking: savedBooking,
+          invoice: invoiceResult.invoice,
+          invoiceStatus: invoiceResult.success ? 'created' : 'failed',
+          invoiceError: invoiceResult.error,
         };
 
       } finally {
@@ -266,19 +315,20 @@ export class BookingService {
     try {
       const booking = await this.bookingRepository.findById(bookingId);
       if (!booking) {
-        return {
-          success: false,
-          message: 'Booking not found',
-          error: 'BOOKING_NOT_FOUND',
-        };
+        throw new BookingNotFoundException(bookingId.value);
       }
 
       if (!booking.canBeConfirmed()) {
-        return {
-          success: false,
-          message: `Cannot confirm booking with status: ${booking.status.value}`,
-          error: 'INVALID_BOOKING_STATUS',
-        };
+        if (booking.status.value === 'CONFIRMED') {
+          throw new BookingAlreadyConfirmedException(bookingId.value);
+        }
+        if (booking.status.value === 'CANCELLED') {
+          throw new BookingCancelledException(bookingId.value);
+        }
+        if (booking.status.value === 'EXPIRED') {
+          throw new BookingExpiredException(bookingId.value);
+        }
+        throw new Error(`Cannot confirm booking with status: ${booking.status.value}`);
       }
 
       booking.confirm();
@@ -498,16 +548,36 @@ export class BookingService {
    */
   async getBookings(
     userId?: UuidValueObject,
-    resourceId?: UuidValueObject,
     resourceItemId?: UuidValueObject,
     status?: string,
     startDate?: Date,
     endDate?: Date,
     page?: number,
     limit?: number
-  ): Promise<BookingEntity[]> {
-    // For now, return all bookings - this should be implemented in repository
-    return await this.bookingRepository.findAll();
+  ): Promise<{ bookings: BookingEntity[]; pagination: any }> {
+    const criteria = {
+      userId,
+      resourceItemId,
+      status,
+      startDate,
+      endDate,
+      page: page || 1,
+      limit: limit || 10,
+      sortBy: 'createdAt' as const,
+      sortOrder: 'DESC' as const
+    };
+
+    const result = await this.bookingRepository.search(criteria);
+    
+    return {
+      bookings: result.bookings,
+      pagination: {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / result.limit)
+      }
+    };
   }
 
   /**
@@ -550,75 +620,14 @@ export class BookingService {
   }
 
   /**
-   * Process payment for a booking
+   * Process payment for a booking (DEPRECATED - Use invoice payment instead)
    */
   async processBookingPayment(
     bookingId: UuidValueObject,
     paymentMethod: string,
     metadata?: Record<string, any>
   ): Promise<BookingResult> {
-    try {
-      const booking = await this.bookingRepository.findById(bookingId);
-      if (!booking) {
-        return {
-          success: false,
-          message: 'Booking not found',
-          error: 'BOOKING_NOT_FOUND',
-        };
-      }
-
-      if (!booking.isPending()) {
-        return {
-          success: false,
-          message: `Cannot process payment for booking with status: ${booking.status.value}`,
-          error: 'INVALID_BOOKING_STATUS',
-        };
-      }
-
-      // Mark booking as payment pending
-      booking.markPaymentPending();
-      await this.bookingRepository.save(booking);
-
-      // Process payment through payment service
-      const paymentResult = await this.paymentService.processPayment({
-        userId: booking.userId,
-        resourceId: booking.resourceId,
-        resourceType: 'BOOKING', // This should be determined from resource
-        basePrice: booking.price.basePrice,
-        currency: booking.price.currency,
-        bookingDurationHours: booking.period.getDurationInHours(),
-        startDate: booking.period.startDate,
-        endDate: booking.period.endDate,
-        paymentMethod: 'CASH',
-        resourceItemId: booking.resourceItemId,
-        description: `Payment for booking ${booking.id.value}`,
-        metadata: {
-          bookingId: booking.id.value,
-        },
-      });
-
-      if (paymentResult.success) {
-        // Confirm booking after successful payment
-        return await this.confirmBooking(bookingId);
-      } else {
-        // Mark payment as failed
-        booking.markPaymentFailed();
-        await this.bookingRepository.save(booking);
-
-        return {
-          success: false,
-          message: 'Payment processing failed',
-          error: 'PAYMENT_FAILED',
-        };
-      }
-
-    } catch (error) {
-      return {
-        success: false,
-        message: `Failed to process booking payment: ${error.message}`,
-        error: 'PAYMENT_PROCESSING_FAILED',
-      };
-    }
+    throw new Error('This method is deprecated. Use invoice payment instead.');
   }
 
 }

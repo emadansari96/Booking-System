@@ -13,7 +13,6 @@ export interface LockResult {
   lockKey?: string;
   error?: string;
 }
-
 @Injectable()
 export class RedisLockService {
   private readonly logger = new Logger(RedisLockService.name);

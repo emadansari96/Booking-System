@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { GetNotificationByIdQuery } from '../get-notification-by-id.query';
 import { NotificationRepositoryInterface } from '../../interfaces/notification-repository.interface';
 import { UuidValueObject } from '../../../../shared/domain/base/value-objects/uuid.value-object';
-
 @QueryHandler(GetNotificationByIdQuery)
 export class GetNotificationByIdHandler implements IQueryHandler<GetNotificationByIdQuery> {
   constructor(

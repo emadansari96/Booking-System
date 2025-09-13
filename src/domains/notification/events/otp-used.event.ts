@@ -1,5 +1,4 @@
 import { DomainEvent } from '../../../shared/domain/events/domain-event.base';
-
 export class OtpUsedEvent extends DomainEvent {
   public readonly eventName: string = 'OtpUsed';
   public readonly occurredOn: Date;

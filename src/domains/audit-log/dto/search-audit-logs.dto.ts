@@ -4,70 +4,55 @@ import { AuditAction } from '../value-objects/audit-action.value-object';
 import { AuditDomain } from '../value-objects/audit-domain.value-object';
 import { AuditStatus } from '../value-objects/audit-status.value-object';
 import { AuditSeverity } from '../value-objects/audit-severity.value-object';
-
 export class SearchAuditLogsDto {
   @IsOptional()
   @IsString()
   userId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   sessionId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(AuditAction)
   action?: AuditAction;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(AuditDomain)
   domain?: AuditDomain;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   entityType?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsString()
   entityId?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(AuditStatus)
   status?: AuditStatus;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(AuditSeverity)
   severity?: AuditSeverity;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   startDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsDateString()
   endDate?: string;
-
-  @IsOptional()
+@IsOptional()
   @IsIP()
   ipAddress?: string;
-
-  @IsOptional()
+@IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
   @Min(1)
   page?: number;
-
-  @IsOptional()
+@IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
   @Min(1)
   @Max(1000)
   limit?: number;
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['timestamp', 'severity', 'action', 'domain'])
   sortBy?: 'timestamp' | 'severity' | 'action' | 'domain';
-
-  @IsOptional()
+@IsOptional()
   @IsEnum(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC';
 }

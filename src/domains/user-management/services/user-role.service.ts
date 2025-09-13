@@ -1,7 +1,6 @@
 // src/domains/user-management/services/user-role.service.ts
 import { Injectable } from '@nestjs/common';
 import { UserRole, UserRoleResponseDto } from '../dtos/user-role.dto';
-
 @Injectable()
 export class UserRoleService {
   

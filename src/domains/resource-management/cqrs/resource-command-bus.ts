@@ -5,7 +5,6 @@ import { UpdateResourceCommand } from '../commands/update-resource.command';
 import { DeleteResourceCommand } from '../commands/delete-resource.command';
 import { ChangeResourceStatusCommand } from '../commands/change-resource-status.command';
 import { ResourceEntity } from '../entities/resource.entity';
-
 @Injectable()
 export class ResourceCommandBus {
   constructor(private readonly commandBus: CommandBus) {}

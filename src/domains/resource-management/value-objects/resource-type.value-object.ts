@@ -1,6 +1,5 @@
 import { ValueObjectBase } from '../../../shared/domain/base/value-objects/value-object.base';
-
-export type ResourceTypeType = 'ROOM' | 'HALL' | 'EQUIPMENT' | 'SERVICE' | 'VENUE';
+export type ResourceTypeType = 'ROOM' | 'HALL' | 'EQUIPMENT' | 'SERVICE' | 'VENUE' | 'HOTEL';
 
 export interface ResourceTypeProps {
   value: ResourceTypeType;
@@ -12,7 +11,7 @@ export class ResourceType extends ValueObjectBase<ResourceTypeProps> {
   }
 
   public static create(value: ResourceTypeType): ResourceType {
-    const validTypes: ResourceTypeType[] = ['ROOM', 'HALL', 'EQUIPMENT', 'SERVICE', 'VENUE'];
+    const validTypes: ResourceTypeType[] = ['ROOM', 'HALL', 'EQUIPMENT', 'SERVICE', 'VENUE', 'HOTEL'];
     
     if (!validTypes.includes(value)) {
       throw new Error(`Invalid resource type: ${value}. Must be one of: ${validTypes.join(', ')}`);

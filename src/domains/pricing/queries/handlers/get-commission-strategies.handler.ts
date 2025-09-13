@@ -2,7 +2,6 @@ import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { GetCommissionStrategiesQuery } from '../get-commission-strategies.query';
 import { CommissionStrategyRepositoryInterface } from '../../interfaces/commission-strategy-repository.interface';
-
 @QueryHandler(GetCommissionStrategiesQuery)
 export class GetCommissionStrategiesHandler implements IQueryHandler<GetCommissionStrategiesQuery> {
   constructor(
