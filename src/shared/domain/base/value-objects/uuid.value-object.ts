@@ -1,0 +1,32 @@
+import { ValueObjectBase } from './value-object.base';
+import { randomUUID } from 'crypto';
+
+export interface UuidValueObjectProps {
+  value: string;
+}
+
+export class UuidValueObject extends ValueObjectBase<UuidValueObjectProps> {
+  constructor(props: UuidValueObjectProps) {
+    super(props);
+  }
+
+  private static isValidUUID(uuid: string): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+  }
+
+  static fromString(value: string): UuidValueObject {
+    if (!UuidValueObject.isValidUUID(value)) {
+      throw new Error('Invalid UUID format');
+    }
+    return new UuidValueObject({ value });
+  }
+
+  static generate(): UuidValueObject {
+    return new UuidValueObject({ value: randomUUID() });
+  }
+
+  get value(): string {
+    return this.props.value;
+  }
+}

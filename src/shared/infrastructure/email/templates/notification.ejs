@@ -1,0 +1,20 @@
+<%- include('base', { 
+    subject: subject,
+    body: `
+        <h2>${title}</h2>
+        
+        <p>Hello ${userName},</p>
+        
+        <div class="content">
+            ${message}
+        </div>
+        
+        ${actionUrl ? `
+            <a href="${actionUrl}" class="button">Take Action</a>
+        ` : ''}
+        
+        <p>If you have any questions, please contact our support team.</p>
+        
+        <p>Best regards,<br>Booking System Team</p>
+    `
+}) %>

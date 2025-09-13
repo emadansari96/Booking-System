@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=booking_user
+      - DB_PASSWORD=booking_password
+      - DB_DATABASE=booking_system
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: bun run start:dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

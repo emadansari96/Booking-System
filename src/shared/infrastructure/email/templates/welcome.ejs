@@ -1,0 +1,30 @@
+<%- include('base', { 
+    subject: subject,
+    body: `
+        <h2>Welcome to Booking System!</h2>
+        
+        <p>Hello ${userName},</p>
+        
+        <div class="success">
+            <strong>🎉 Congratulations!</strong> Your account has been successfully created.
+        </div>
+        
+        <p>We're excited to have you on board! With Booking System, you can:</p>
+        
+        <ul>
+            <li>📅 Book hotels, cars, and other resources</li>
+            <li>💳 Make secure payments</li>
+            <li>📧 Receive instant confirmations</li>
+            <li>📊 Track your booking history</li>
+            <li>⭐ Rate and review your experiences</li>
+        </ul>
+        
+        <p>To get started, simply log in to your account and explore our available resources.</p>
+        
+        <a href="#" class="button">Get Started</a>
+        
+        <p>If you have any questions or need assistance, our support team is here to help!</p>
+        
+        <p>Welcome aboard!<br>Booking System Team</p>
+    `
+}) %>

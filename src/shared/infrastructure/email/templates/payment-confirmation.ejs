@@ -1,0 +1,26 @@
+<%- include('base', { 
+    subject: subject,
+    body: `
+        <h2>Payment Confirmation</h2>
+        
+        <p>Hello ${userName},</p>
+        
+        <div class="success">
+            <strong>✅ Payment Successful!</strong> Your payment has been processed successfully.
+        </div>
+        
+        <h3>Payment Details:</h3>
+        <ul>
+            <li><strong>Payment ID:</strong> ${paymentId}</li>
+            <li><strong>Invoice Number:</strong> ${invoiceNumber}</li>
+            <li><strong>Amount:</strong> ${amount} ${currency}</li>
+            <li><strong>Date:</strong> ${new Date().toLocaleDateString()}</li>
+        </ul>
+        
+        <p>Your booking is now confirmed and you will receive a separate confirmation email with all the details.</p>
+        
+        <p>If you have any questions about this payment or need assistance, please contact our support team.</p>
+        
+        <p>Thank you for choosing Booking System!<br>Booking System Team</p>
+    `
+}) %>

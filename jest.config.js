@@ -1,0 +1,31 @@
+module.exports = {
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: 'src',
+  testRegex: '.*\\.spec\\.ts$',
+  transform: {
+    '^.+\\.(t|j)s$': 'ts-jest',
+  },
+  collectCoverageFrom: [
+    '**/*.(t|j)s',
+    '!**/*.spec.ts',
+    '!**/*.interface.ts',
+    '!**/*.dto.ts',
+    '!**/*.entity.ts',
+    '!**/*.module.ts',
+    '!**/*.config.ts',
+    '!**/main.ts',
+  ],
+  coverageDirectory: '../coverage',
+  testEnvironment: 'node',
+  moduleNameMapping: {
+    '^@/(.*)$': '<rootDir>/$1',
+    '^@/shared/(.*)$': '<rootDir>/shared/$1',
+    '^@/domains/(.*)$': '<rootDir>/domains/$1',
+    '^@/config/(.*)$': '<rootDir>/config/$1',
+  },
+  setupFilesAfterEnv: ['<rootDir>/../test/setup.ts'],
+  testTimeout: 10000,
+  verbose: true,
+  detectOpenHandles: true,
+  forceExit: true,
+};
