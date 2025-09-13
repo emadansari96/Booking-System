@@ -126,9 +126,10 @@ cp .env.example .env
 
 5. **ریست دیتابیس و اجرای migrations:**
 ```bash
-# Reset database (destructive!)
+# Reset database (destructive!, if needed)
 npx prisma migrate reset --force
 
+npx prisma migrate dev
 # Apply migrations
 npx prisma migrate deploy
 ```
